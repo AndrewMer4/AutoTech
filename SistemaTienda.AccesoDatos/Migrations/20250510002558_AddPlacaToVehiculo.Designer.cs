@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaTienda.Data;
 
@@ -11,9 +12,11 @@ using SistemaTienda.Data;
 namespace SistemaTienda.AccesoDatos.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250510002558_AddPlacaToVehiculo")]
+    partial class AddPlacaToVehiculo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -314,9 +317,8 @@ namespace SistemaTienda.AccesoDatos.Migrations
                     b.Property<decimal>("Total")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("VehiculoId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("VehiculoId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -329,8 +331,11 @@ namespace SistemaTienda.AccesoDatos.Migrations
 
             modelBuilder.Entity("SistemaTienda.Models.Vehiculo", b =>
                 {
-                    b.Property<string>("Placa")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Anio")
                         .HasColumnType("int");
@@ -352,13 +357,17 @@ namespace SistemaTienda.AccesoDatos.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("Placa")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal>("PrecioPorDia")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("UrlImagen")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Placa");
+                    b.HasKey("Id");
 
                     b.ToTable("Vehiculo");
                 });

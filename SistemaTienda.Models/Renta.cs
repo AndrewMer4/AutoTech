@@ -8,13 +8,21 @@ namespace SistemaTienda.Models
 {
     public class Renta
     {
+        [Key]
         public int Id { get; set; }
 
         [Required]
         public int ClienteId { get; set; }
 
+        [ForeignKey("ClienteId")]
+        public Clientes? Cliente { get; set; }
+
         [Required]
-        public int VehiculoId { get; set; }
+        [Display(Name = "Vehículo (Matrícula)")]
+        public string VehiculoId { get; set; } = null!;   // ahora string
+
+        [ForeignKey("VehiculoId")]
+        public Vehiculo? Vehiculo { get; set; }
 
         [Required]
         [Display(Name = "Fecha de Inicio")]
@@ -29,16 +37,9 @@ namespace SistemaTienda.Models
         [Display(Name = "Total")]
         public decimal Total { get; set; }
 
-        [ForeignKey("ClienteId")]
-        public Clientes? Cliente { get; set; }
-
-        [ForeignKey("VehiculoId")]
-        public Vehiculo? Vehiculo { get; set; }
-
         [NotMapped]
         [Display(Name = "Precio por Día")]
-        public decimal PrecioPorDia
-            => Vehiculo?.PrecioPorDia ?? 0m;
+        public decimal PrecioPorDia => Vehiculo?.PrecioPorDia ?? 0m;
     }
 }
 

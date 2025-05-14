@@ -19,20 +19,18 @@ function cargarDataTable() {
             { "data": "edad", "width": "10%" },
             { "data": "direccion", "width": "20%" },
             {
-                "data": "id",
-                "width": "20%",
-                "render": function (id) {
-                    return `
-                      <div class="d-flex justify-content-center gap-2">
-                        <a href="/Admin/Clientes/Edit/${id}" class="btn btn-success btn-sm">
-                          <i class="far fa-edit"></i> Editar
-                        </a>
-                        <a onclick="Delete('/Admin/Clientes/Delete/${id}')" class="btn btn-danger btn-sm">
-                          <i class="far fa-trash-alt"></i> Borrar
-                        </a>
-                      </div>`;
-                }
-            }
+                data: "id",
+                render: id => `
+    <div class="d-flex justify-content-center gap-2">
+      <a href="/Admin/Clientes/Edit/${id}" class="btn btn-success btn-sm">
+        <i class="far fa-edit"></i> Editar
+      </a>
+      <button onclick="Delete('/Admin/Clientes/Delete/${id}')" class="btn btn-danger btn-sm">
+        <i class="far fa-trash-alt"></i> Borrar
+      </button>
+    </div>`
+            },
+
         ],
         "language": {
             "emptyTable": "No hay registros",

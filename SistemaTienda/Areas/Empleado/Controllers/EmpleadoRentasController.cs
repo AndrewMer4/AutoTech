@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿// EmpleadoRentasController.cs
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SistemaTienda.AccesoDatos.Data.Repository.iRepository;
 using SistemaTienda.Models;
 using SistemaTienda.Models.ViewModels;
 using SistemaTienda.Utilidades;
-using System;
 using System.Linq;
 
 namespace SistemaTienda.Areas.Empleado.Controllers
@@ -21,60 +21,55 @@ namespace SistemaTienda.Areas.Empleado.Controllers
             _contenedor = contenedor;
         }
 
-        // GET: /Empleado/EmpleadoRentas
         [HttpGet]
         public IActionResult Index() => View();
 
-        // GET: /Empleado/EmpleadoRentas/GetAll
         [HttpGet]
         public IActionResult GetAll()
         {
             var data = _contenedor.Renta
                 .GetAll(includeProperties: "Cliente,Vehiculo")
                 .Select(r => new {
-                    id = r.Id,
-                    cliente = r.Cliente.Nombres + " " + r.Cliente.Apellidos,
-                    vehiculo = r.Vehiculo.Marca + " " + r.Vehiculo.Modelo,
-                    fechainicio = r.FechaInicio.ToString("yyyy-MM-dd"),
-                    fechafin = r.FechaFin.ToString("yyyy-MM-dd"),
-                    total = r.Total
+                    r.Id,
+                    Cliente = r.Cliente!.Nombres + " " + r.Cliente.Apellidos,
+                    Vehiculo = r.Vehiculo!.Placa,
+                    FechaInicio = r.FechaInicio.ToString("yyyy-MM-dd"),
+                    FechaFin = r.FechaFin.ToString("yyyy-MM-dd"),
+                    r.Total
                 });
             return Json(new { data });
         }
 
-        // GET: /Empleado/EmpleadoRentas/Create
         [HttpGet]
         public IActionResult Create()
         {
             var vm = new RentaVM
             {
                 Renta = new Renta(),
-                ListaClientes = _contenedor.Cliente.GetAll().Select(c => new SelectListItem
-                {
-                    Text = $"{c.Nombres} {c.Apellidos}",
-                    Value = c.Id.ToString()
-                }),
-                ListaVehiculos = _contenedor.Vehiculo
-                    .GetAll(v => v.Estado == "Disponible")
+                ListaClientes = _contenedor.Cliente.GetAll()
+                    .Select(c => new SelectListItem
+                    {
+                        Text = $"{c.Nombres} {c.Apellidos}",
+                        Value = c.Id.ToString()
+                    }),
+                ListaVehiculos = _contenedor.Vehiculo.GetAll(v => v.Estado == "Disponible")
                     .Select(v => new SelectListItem
                     {
-                        Text = $"{v.Marca} {v.Modelo} ({v.PrecioPorDia:C})",
-                        Value = v.Id.ToString()
+                        Text = $"{v.Placa} – {v.Marca} {v.Modelo} ({v.PrecioPorDia:C})",
+                        Value = v.Placa
                     })
             };
             return View(vm);
         }
 
-        // POST: /Empleado/EmpleadoRentas/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(RentaVM vm)
         {
-            var veh = _contenedor.Vehiculo.Get(vm.Renta.VehiculoId);
+            var veh = _contenedor.Vehiculo
+                .GetFirstOrDefault(v => v.Placa == vm.Renta.VehiculoId);
             if (veh == null)
-            {
                 ModelState.AddModelError("", "Vehículo no válido.");
-            }
             else
             {
                 var dias = (vm.Renta.FechaFin - vm.Renta.FechaInicio).Days;
@@ -86,31 +81,29 @@ namespace SistemaTienda.Areas.Empleado.Controllers
 
             if (!ModelState.IsValid)
             {
-                vm.ListaClientes = _contenedor.Cliente.GetAll().Select(c =>
-                    new SelectListItem
+                vm.ListaClientes = _contenedor.Cliente.GetAll()
+                    .Select(c => new SelectListItem
                     {
                         Text = $"{c.Nombres} {c.Apellidos}",
                         Value = c.Id.ToString()
                     });
-                vm.ListaVehiculos = _contenedor.Vehiculo
-                    .GetAll(v => v.Estado == "Disponible")
+                vm.ListaVehiculos = _contenedor.Vehiculo.GetAll(v => v.Estado == "Disponible")
                     .Select(v => new SelectListItem
                     {
-                        Text = $"{v.Marca} {v.Modelo} ({v.PrecioPorDia:C})",
-                        Value = v.Id.ToString()
+                        Text = $"{v.Placa} – {v.Marca} {v.Modelo} ({v.PrecioPorDia:C})",
+                        Value = v.Placa
                     });
                 return View(vm);
             }
 
             _contenedor.Renta.Add(vm.Renta);
-            veh.Estado = "Rentado";
+            veh!.Estado = "Rentado";
             _contenedor.Vehiculo.Update(veh);
             _contenedor.Save();
 
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: /Empleado/EmpleadoRentas/Edit/5
         [HttpGet]
         public IActionResult Edit(int id)
         {
@@ -120,30 +113,30 @@ namespace SistemaTienda.Areas.Empleado.Controllers
             var vm = new RentaVM
             {
                 Renta = renta,
-                ListaClientes = _contenedor.Cliente.GetAll().Select(c =>
-                    new SelectListItem
+                ListaClientes = _contenedor.Cliente.GetAll()
+                    .Select(c => new SelectListItem
                     {
                         Text = $"{c.Nombres} {c.Apellidos}",
                         Value = c.Id.ToString(),
                         Selected = c.Id == renta.ClienteId
                     }),
-                ListaVehiculos = _contenedor.Vehiculo.GetAll().Select(v =>
-                    new SelectListItem
+                ListaVehiculos = _contenedor.Vehiculo.GetAll()
+                    .Select(v => new SelectListItem
                     {
-                        Text = $"{v.Marca} {v.Modelo} ({v.PrecioPorDia:C}) - {v.Estado}",
-                        Value = v.Id.ToString(),
-                        Selected = v.Id == renta.VehiculoId
+                        Text = $"{v.Placa} – {v.Marca} {v.Modelo} ({v.PrecioPorDia:C}) – {v.Estado}",
+                        Value = v.Placa,
+                        Selected = v.Placa == renta.VehiculoId
                     })
             };
             return View(vm);
         }
 
-        // POST: /Empleado/EmpleadoRentas/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(RentaVM vm)
         {
-            var veh = _contenedor.Vehiculo.Get(vm.Renta.VehiculoId);
+            var veh = _contenedor.Vehiculo
+                .GetFirstOrDefault(v => v.Placa == vm.Renta.VehiculoId);
             if (veh == null)
                 ModelState.AddModelError("", "Vehículo no válido.");
             else
@@ -157,17 +150,17 @@ namespace SistemaTienda.Areas.Empleado.Controllers
 
             if (!ModelState.IsValid)
             {
-                vm.ListaClientes = _contenedor.Cliente.GetAll().Select(c =>
-                    new SelectListItem
+                vm.ListaClientes = _contenedor.Cliente.GetAll()
+                    .Select(c => new SelectListItem
                     {
                         Text = $"{c.Nombres} {c.Apellidos}",
                         Value = c.Id.ToString()
                     });
-                vm.ListaVehiculos = _contenedor.Vehiculo.GetAll().Select(v =>
-                    new SelectListItem
+                vm.ListaVehiculos = _contenedor.Vehiculo.GetAll()
+                    .Select(v => new SelectListItem
                     {
-                        Text = $"{v.Marca} {v.Modelo} ({v.PrecioPorDia:C}) - {v.Estado}",
-                        Value = v.Id.ToString()
+                        Text = $"{v.Placa} – {v.Marca} {v.Modelo} ({v.PrecioPorDia:C}) – {v.Estado}",
+                        Value = v.Placa
                     });
                 return View(vm);
             }
@@ -175,22 +168,23 @@ namespace SistemaTienda.Areas.Empleado.Controllers
             var original = _contenedor.Renta.Get(vm.Renta.Id);
             if (original.VehiculoId != vm.Renta.VehiculoId)
             {
-                var oldVeh = _contenedor.Vehiculo.Get(original.VehiculoId);
+                var oldVeh = _contenedor.Vehiculo
+                    .GetFirstOrDefault(v => v.Placa == original.VehiculoId);
                 if (oldVeh != null)
                 {
                     oldVeh.Estado = "Disponible";
                     _contenedor.Vehiculo.Update(oldVeh);
                 }
-                veh.Estado = "Rentado";
+                veh!.Estado = "Rentado";
                 _contenedor.Vehiculo.Update(veh);
             }
 
             _contenedor.Renta.Update(vm.Renta);
             _contenedor.Save();
+
             return RedirectToAction(nameof(Index));
         }
 
-        // DELETE: /Empleado/EmpleadoRentas/Delete/5
         [HttpDelete]
         public IActionResult Delete(int id)
         {
@@ -198,7 +192,8 @@ namespace SistemaTienda.Areas.Empleado.Controllers
             if (renta == null)
                 return Json(new { success = false, message = "Renta no encontrada." });
 
-            var veh = _contenedor.Vehiculo.Get(renta.VehiculoId);
+            var veh = _contenedor.Vehiculo
+                .GetFirstOrDefault(v => v.Placa == renta.VehiculoId);
             if (veh != null)
             {
                 veh.Estado = "Disponible";

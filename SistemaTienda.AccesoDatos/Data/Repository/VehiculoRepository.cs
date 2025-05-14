@@ -21,7 +21,7 @@ namespace SistemaTienda.AccesoDatos.Data.Repository
 
         public void Update(Vehiculo vehiculo)
         {
-            var objDesdeDb = _db.Vehiculo.FirstOrDefault(v => v.Id == vehiculo.Id);
+            var objDesdeDb = _db.Vehiculo.FirstOrDefault(v => v.Placa == vehiculo.Placa);
             if (objDesdeDb != null)
             {
                 objDesdeDb.Marca = vehiculo.Marca;
@@ -29,7 +29,7 @@ namespace SistemaTienda.AccesoDatos.Data.Repository
                 objDesdeDb.Anio = vehiculo.Anio;
                 objDesdeDb.Kilometraje = vehiculo.Kilometraje;
                 objDesdeDb.Estado = vehiculo.Estado;
-                objDesdeDb.UrlImagen = vehiculo.UrlImagen; // Actualiza la imagen
+                objDesdeDb.UrlImagen = vehiculo.UrlImagen;
                 objDesdeDb.PrecioPorDia = vehiculo.PrecioPorDia;
                 _db.SaveChanges();
             }
