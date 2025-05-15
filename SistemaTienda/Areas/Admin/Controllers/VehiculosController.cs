@@ -140,7 +140,6 @@ namespace SistemaTienda.Areas.Admin.Controllers
             return View(vehiculo);
         }
 
-        // DELETE: /Admin/Vehiculos/Delete/{placa}
         [HttpDelete]
         public IActionResult Delete(string placa)
         {
