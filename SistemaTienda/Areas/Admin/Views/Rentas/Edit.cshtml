@@ -38,63 +38,49 @@
 </style>
 
 <div class="container mt-5">
-    <h1 class="text-center display-4 font-title mb-4">Editar Renta</h1>
-
-    <form method="post" asp-area="Admin" asp-controller="Rentas" asp-action="Edit">
+    <h1 class="text-center display-4">Editar Renta</h1>
+    <form asp-action="Edit" asp-area="Admin" method="post">
         <input type="hidden" asp-for="Renta.Id" />
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-        <div class="form-container">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-            <div class="mb-3">
-                <label asp-for="Renta.ClienteId" class="form-label"></label>
-                @Html.DropDownListFor(m => m.Renta.ClienteId, Model.ListaClientes, "Seleccione un cliente", new { @class = "form-control" })
-                <span asp-validation-for="Renta.ClienteId" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Renta.VehiculoId" class="form-label">Vehículo</label>
-                @Html.DropDownListFor(m => m.Renta.VehiculoId, Model.ListaVehiculos, "Seleccione un vehículo", new { @class = "form-control" })
-                <span asp-validation-for="Renta.VehiculoId" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Renta.FechaInicio" class="form-label"></label>
-                <input asp-for="Renta.FechaInicio"
-                       type="date"
-                       class="form-control"
-                       value="@Model.Renta.FechaInicio.ToString("yyyy-MM-dd")"
-                       readonly />
-                <span asp-validation-for="Renta.FechaInicio" class="text-danger"></span>
-            </div>
-
-
-            <div class="mb-3">
-                <label asp-for="Renta.FechaFin" class="form-label"></label>
-                <input asp-for="Renta.FechaFin"
-                       type="date"
-                       class="form-control"
-                       min="@manana"
-                       value="@Model.Renta.FechaFin.ToString("yyyy-MM-dd")" />
-                <span asp-validation-for="Renta.FechaFin" class="text-danger"></span>
-            </div>
-
-            <div class="mb-4">
-                <label asp-for="Renta.Total" class="form-label"></label>
-                <input asp-for="Renta.Total" class="form-control" readonly />
-            </div>
-
-            <div class="d-flex justify-content-between">
-                <a asp-area="Admin" asp-controller="Rentas" asp-action="Index" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-1"></i> Volver
-                </a>
-                <button type="submit" class="btn btn-dark">
-                    <i class="fas fa-save me-2"></i> Guardar Cambios
-                </button>
-            </div>
+        <div class="mb-3">
+            <label for="ClienteSearch">Cliente</label>
+            <input type="text" id="ClienteSearch" name="ClienteSearch" class="form-control"
+                   value="@Model.ClienteSearch" />
+            <input type="hidden" asp-for="Renta.ClienteId" id="ClienteId" />
+            <span asp-validation-for="Renta.ClienteId" class="text-danger"></span>
         </div>
+
+        <div class="mb-3">
+            <label for="VehiculoSearch">Vehículo</label>
+            <input type="text" id="VehiculoSearch" name="VehiculoSearch" class="form-control"
+                   value="@Model.VehiculoSearch" />
+            <input type="hidden" asp-for="Renta.VehiculoId" id="VehiculoId" />
+            <span asp-validation-for="Renta.VehiculoId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Renta.FechaInicio"></label>
+            <input asp-for="Renta.FechaInicio" type="date" class="form-control" readonly />
+            <span asp-validation-for="Renta.FechaInicio" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Renta.FechaFin"></label>
+            <input asp-for="Renta.FechaFin" type="date" class="form-control" min="@manana" />
+            <span asp-validation-for="Renta.FechaFin" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Renta.Total"></label>
+            <input asp-for="Renta.Total" class="form-control" readonly />
+        </div>
+
+        <button type="submit" class="btn btn-dark">Guardar</button>
+        <a asp-action="Index" asp-area="Admin" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
+
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

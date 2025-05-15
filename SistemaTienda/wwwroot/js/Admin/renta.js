@@ -13,42 +13,43 @@ function cargarDataTable() {
         },
         columns: [
             {
-                data: "cliente.nombres",
-                width: "15%"
+                data: "cliente",
+                title: "Cliente",
+                width: "20%"
             },
             {
-                data: "vehiculo.marca",
-                width: "15%"
+                data: "vehiculo",
+                title: "Vehículo",
+                width: "20%"
             },
             {
                 data: "fechaInicio",
-                width: "20%"
+                title: "Fecha Inicio",
+                width: "15%"
             },
             {
                 data: "fechaFin",
-                width: "20%"
+                title: "Fecha Fin",
+                width: "15%"
             },
             {
                 data: "total",
-                render: function (data) {
-                    return "$" + parseFloat(data).toFixed(2);
-                },
-                width: "10%"
+                title: "Total",
+                width: "10%",
+                render: val => "$" + parseFloat(val).toFixed(2)
             },
+            // Pagos (incluye además el botón de Recibo)
             {
                 data: "id",
-                render: function (id) {
-                    return `
-                      <div class="d-flex justify-content-center gap-2">
-                        <a href="/Admin/Rentas/Edit/${id}" class="btn btn-success btn-sm" style="width:100px;">
-                          <i class="far fa-edit"></i> Editar
-                        </a>
-                        <button onclick="deleteRenta('/Admin/Rentas/Delete/${id}')" class="btn btn-danger btn-sm" style="width:100px;">
-                          <i class="far fa-trash-alt"></i> Borrar
-                        </button>
-                      </div>`;
-                },
-                width: "20%"
+                render: id => `
+    <div class="d-flex justify-content-center gap-2">
+      <a href="/Admin/Rentas/Edit/${id}" class="btn btn-success btn-sm">
+        <i class="far fa-edit"></i> Editar
+      </a>
+      <button onclick="Delete('/Admin/Rentas/Delete/${id}')" class="btn btn-danger btn-sm">
+        <i class="far fa-trash-alt"></i> Borrar
+      </button>
+    </div>`
             }
         ],
         language: {
@@ -74,26 +75,22 @@ function cargarDataTable() {
 
 function Delete(url) {
     swal({
-        title: "¿Está seguro de borrar?",
-        text: "¡Este contenido no se puede recuperar!",
-        type: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Sí, borrar!"
-    }, function () {
-        $.ajax({
-            type: 'DELETE',
-            url: url,
-            success: function (data) {
-                if (data.success) {
-                    toastr.success(data.message);
+        title: "¿Estás seguro?",
+        text: "¡Este registro no se podrá recuperar!",
+        icon: "warning",
+        buttons: ["Cancelar", "Sí, borrar"]
+    }).then(willDelete => {
+        if (willDelete) {
+            $.ajax({
+                type: "DELETE",
+                url: url,
+                success: data => {
+                    if (data.success) toastr.success(data.message);
+                    else toastr.error(data.message);
                     dataTable.ajax.reload();
-                } else {
-                    toastr.error(data.message);
-                }
-            },
-            error: function () {
-                toastr.error("Error en el servidor.");
-            }
-        });
+                },
+                error: () => toastr.error("Error en el servidor.")
+            });
+        }
     });
 }

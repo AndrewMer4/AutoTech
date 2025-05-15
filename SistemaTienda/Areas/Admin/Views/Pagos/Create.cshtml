@@ -1,25 +1,21 @@
 ﻿@model SistemaTienda.Models.ViewModels.PagoVM
 
 @{
-    ViewData["Title"] = Model.Pago.Id == 0 ? "Crear Pago" : "Editar Pago";
+    ViewData["Title"] = "Crear Pago";
 }
 
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
-
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
-    .font-title {
-        font-family: 'Bebas Neue', sans-serif;
-        letter-spacing: 1px;
+    .select2-container--default .select2-selection--single {
+        height: 38px;
+        border: 1px solid #ced4da !important;
+        border-radius: 0.5rem !important;
     }
 
-    .form-container {
-        background-color: #fff;
-        border-radius: 1rem;
-        padding: 2rem;
-        max-width: 800px;
-        margin: auto;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+        }
 
     .form-label {
         font-weight: 600;
@@ -27,7 +23,7 @@
     }
 
     .form-control {
-        border-radius: 0.5rem;
+        border-radius: .5rem;
     }
 
     .btn-dark {
@@ -37,60 +33,72 @@
 </style>
 
 <div class="container mt-5">
-    <h1 class="text-center display-4 font-title text-black mb-4">
-        @(Model.Pago.Id == 0 ? "Crear Pago" : "Editar Pago")
-    </h1>
+    <h1 class="text-center display-4 mb-4">Crear Pago</h1>
+    <form method="post" asp-area="Admin" asp-controller="Pagos" asp-action="Create">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-    <form method="post" asp-action="@(Model.Pago.Id == 0 ? "Create" : "Edit")">
-        <input type="hidden" asp-for="Pago.Id" />
-
-        <div class="form-container">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-            <!-- Renta -->
-            <div class="mb-3">
-                <label asp-for="Pago.RentaId" class="form-label"></label>
-                @Html.DropDownListFor(m => m.Pago.RentaId, Model.ListaRentas, "Seleccione una renta", new { @class = "form-control" })
-                <span asp-validation-for="Pago.RentaId" class="text-danger"></span>
-            </div>
-
-            <!-- Monto -->
-            <div class="mb-3">
-                <label asp-for="Pago.Monto" class="form-label"></label>
-                <input asp-for="Pago.Monto" class="form-control" readonly />
-                <span asp-validation-for="Pago.Monto" class="text-danger"></span>
-            </div>
-
-            <!-- Estado -->
-            <div class="mb-3">
-                <label asp-for="Pago.Estado" class="form-label"></label>
-                <select asp-for="Pago.Estado" class="form-control">
-                    <option value="Pendiente">Pendiente</option>
-                    <option value="Completado">Completado</option>
-                </select>
-            </div>
-
-            <!-- Notas -->
-            <div class="mb-4">
-                <label asp-for="Pago.Notas" class="form-label"></label>
-                <textarea asp-for="Pago.Notas" class="form-control" rows="3"></textarea>
-            </div>
-
-            <!-- Botones -->
-            <div class="d-flex justify-content-between">
-                <a asp-action="Index" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-1"></i> Volver
-                </a>
-                <button type="submit" class="btn btn-dark">
-                    <i class="fas fa-save me-2"></i> @(Model.Pago.Id == 0 ? "Crear Pago" : "Guardar Cambios")
-                </button>
-            </div>
+        <!-- Renta con Select2 + AJAX -->
+        <div class="mb-3">
+            <label asp-for="Pago.RentaId" class="form-label">Renta</label>
+            <select asp-for="Pago.RentaId" class="form-control js-select2-renta">
+                <option value="">Escriba para buscar…</option>
+            </select>
+            <span asp-validation-for="Pago.RentaId" class="text-danger"></span>
         </div>
+
+        <!-- Monto auto-calculado -->
+        <div class="mb-3">
+            <label asp-for="Pago.Monto" class="form-label">Monto</label>
+            <input asp-for="Pago.Monto" class="form-control" readonly />
+        </div>
+
+        <!-- Estado -->
+        <div class="mb-3">
+            <label asp-for="Pago.Estado" class="form-label">Estado</label>
+            <select asp-for="Pago.Estado" class="form-control">
+                <option value="Pendiente">Pendiente</option>
+                <option value="Completado">Completado</option>
+            </select>
+        </div>
+
+        <!-- Notas -->
+        <div class="mb-4">
+            <label asp-for="Pago.Notas" class="form-label">Notas</label>
+            <textarea asp-for="Pago.Notas" class="form-control" rows="3"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-dark">Guardar</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(function() {
+          $('.js-select2-renta').select2({
+            placeholder: "Escriba para buscar renta…",
+            allowClear: true,
+            ajax: {
+              url: '@Url.Action("GetRentas", "Pagos", new { area = "Admin" })',
+              dataType: 'json',
+              delay: 250,
+              data: params => ({ term: params.term }),
+              processResults: data => data
+            },
+            minimumInputLength: 1,
+            width: '100%'
+          });
+
+          // Al seleccionar una renta, también podríamos cargar el monto con AJAX si lo deseas.
+          $('.js-select2-renta').on('select2:select', function(e) {
+            const rentaId = e.params.data.id;
+            // Opcional: descomentar y crear un endpoint GetMonto para devolver { monto: ... }
+            // $.getJSON('@Url.Action("GetMonto", "Pagos", new { area = "Admin" })', { rentaId }, function(d) {
+            //   $("input[name='Pago.Monto']").val(d.monto);
+            // });
+          });
+        });
+    </script>
 }

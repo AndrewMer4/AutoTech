@@ -5,36 +5,38 @@ namespace SistemaTienda.Models
 {
     public class Vehiculo
     {
-        public int Id { get; set; }
+        [Key]
+        [Required]
+        [Display(Name = "Matrícula")]
+        [RegularExpression(@"^[A-Z]\s\d{3}\s\d{3}$", ErrorMessage = "La matrícula debe tener formato 'A 123 456'.")]
+        public string Placa { get; set; }
 
         [Required]
-        [StringLength(50, ErrorMessage = "La marca no puede tener más de 50 caracteres.")]
+        [StringLength(50)]
         public string Marca { get; set; }
 
         [Required]
-        [StringLength(50, ErrorMessage = "El modelo no puede tener más de 50 caracteres.")]
+        [StringLength(50)]
         public string Modelo { get; set; }
 
         [Required]
         [Display(Name = "Año")]
-        [Range(2000, 2026, ErrorMessage = "El año debe estar entre 2000 y 2026.")]
+        [Range(2000, 2026)]
         public int Anio { get; set; }
 
-        [Required(ErrorMessage = "El kilometraje es obligatorio.")]
-        [Range(0, int.MaxValue, ErrorMessage = "El kilometraje debe ser un valor positivo.")]
+        [Required]
+        [Range(0, int.MaxValue)]
         public int Kilometraje { get; set; }
 
         [Required]
         public string Estado { get; set; }
 
-        [DataType(DataType.ImageUrl)]
         [Display(Name = "Imagen")]
-        [Url(ErrorMessage = "La URL de la imagen no es válida.")]
         public string UrlImagen { get; set; }
 
-        [Required(ErrorMessage = "El precio por día es obligatorio")]
+        [Required]
         [Display(Name = "Precio por Día")]
-        [Range(0.01, double.MaxValue, ErrorMessage = "El precio por día debe ser mayor que 0.")]
+        [Range(0.01, double.MaxValue)]
         [DisplayFormat(DataFormatString = "{0:0.00}", ApplyFormatInEditMode = true)]
         public decimal PrecioPorDia { get; set; }
     }

@@ -1,17 +1,20 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SistemaTienda.Models.ViewModels
 {
     public class RentaVM
     {
-        public Renta Renta { get; set; }
+        public Renta Renta { get; set; } = new Renta();
 
-        public IEnumerable<SelectListItem> ListaClientes { get; set; }
-        public IEnumerable<SelectListItem> ListaVehiculos { get; set; }
+        public IEnumerable<SelectListItem> ListaClientes { get; set; } = Enumerable.Empty<SelectListItem>();
+        public IEnumerable<SelectListItem> ListaVehiculos { get; set; } = Enumerable.Empty<SelectListItem>();
+
+        [NotMapped]
+        public string ClienteSearch { get; set; } = "";
+
+        [NotMapped]
+        public string VehiculoSearch { get; set; } = "";
     }
 }
