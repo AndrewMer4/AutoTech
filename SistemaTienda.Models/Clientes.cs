@@ -21,7 +21,7 @@ namespace SistemaTienda.Models
         [RegularExpression(@"^[a-zA-Z\s]+$", ErrorMessage = "El apellido solo puede contener letras y espacios.")]
         public string Apellidos { get; set; }
 
-        [Range(18, 120, ErrorMessage = "La edad debe ser de al menos 18 añossss")]
+        [Range(18, 120, ErrorMessage = "La edad debe ser de al menos 18 años")]
         public int Edad { get; set; }
 
         [Required(ErrorMessage = "El DUI es obligatorio")]

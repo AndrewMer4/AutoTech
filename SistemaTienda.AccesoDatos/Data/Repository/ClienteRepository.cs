@@ -19,7 +19,7 @@ namespace SistemaTienda.AccesoDatos.Data.Repository
             if (objDesdeDb != null)
             {
                 objDesdeDb.Nombres = cliente.Nombres;
-                objDesdeDb.Apellidos = cliente.Apellidos;
+                objDesdeDb.Apellidos = cliente.Apellido;
                 objDesdeDb.Edad = cliente.Edad;
                 objDesdeDb.DUI = cliente.DUI;
                 objDesdeDb.Telefono = cliente.Telefono;
