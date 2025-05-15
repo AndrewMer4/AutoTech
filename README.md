@@ -58,24 +58,7 @@ AutoTech Rent a Car es una empresa dedicada al alquiler de vehículos. Este proy
 - [ ] App móvil React Native (lectura de contratos y check-in vehicular)
 - [ ] Soporte multilenguaje (ES-SV / EN-US)
 
-## Contribuciones
 
-Las contribuciones son bienvenidas 🧡. Para comenzar:
-
-1. Abre un **Issue** describiendo la mejora o bug.
-2. Crea un **branch** con el prefijo `feature/` o `bugfix/`.
-3. Envía un **Pull Request** con una descripción clara y referencia al Issue.
-4. Espera la revisión y al menos **1 aprobación** de un colaborador.
-
-Consulta `CONTRIBUTING.md` para la guía completa y estándares de código.
-
-## Licencia
-
-Distribuido bajo la licencia MIT. Consulta `LICENSE` para más detalles.
-
-## Contacto
-
-- **Líder Técnico:** Juan Pérez – juan.perez@autotech.com  
 - **Product Owner:** María Gómez – maria.gomez@autotech.com  
 
 ---
