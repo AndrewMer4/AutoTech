@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SistemaTienda.AccesoDatos.Data.Repository.iRepository;
 using SistemaTienda.Data;
@@ -129,8 +130,14 @@ namespace SistemaTienda.Areas.Admin.Controllers
             if (pago == null)
                 return NotFound();
 
-            return View(new PagoVM { Pago = pago });
+            var vm = new PagoVM
+            {
+                Pago = pago,
+                ListaRentas = ObtenerListaDeRentas()
+            };
+            return View(vm);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -144,6 +151,18 @@ namespace SistemaTienda.Areas.Admin.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+        
+        private IEnumerable<SelectListItem> ObtenerListaDeRentas()
+        {
+            return _contenedor.Renta
+                .GetAll(includeProperties: "Cliente,Vehiculo")
+                .Select(r => new SelectListItem
+                {
+                    Value = r.Id.ToString(),
+                    Text = $"{r.Cliente.Nombres} {r.Cliente.Apellidos} — {r.Vehiculo.Marca} {r.Vehiculo.Modelo}"
+                });
+        }
+
 
         // ----------  DELETE  ----------
 

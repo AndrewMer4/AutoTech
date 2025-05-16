@@ -4,22 +4,13 @@
     ViewData["Title"] = "Editar Pago";
 }
 
-<!-- Fuente Bebas Neue -->
+<!-- Bebas Neue -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
 
 <style>
     .font-title {
         font-family: 'Bebas Neue', sans-serif;
         letter-spacing: 1px;
-    }
-
-    .form-container {
-        background-color: #fff;
-        border-radius: 1rem;
-        padding: 2rem;
-        max-width: 800px;
-        margin: auto;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
     }
 
     .form-label {
@@ -29,18 +20,34 @@
 
     .form-control {
         border-radius: 0.5rem;
+        border: 1px solid #ccc;
     }
 
     .btn-dark {
-        font-weight: 500;
+        border-radius: 0.3rem;
         padding: 10px 25px;
+        font-weight: 500;
+    }
+
+    .btn-secondary {
+        padding: 10px 20px;
+    }
+
+    .form-container {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        max-width: 700px;
+        margin: auto;
     }
 </style>
 
 <div class="container mt-5">
-    <h1 class="text-center display-4 font-title text-black mb-4">Editar Pago</h1>
-
-    <form method="post" asp-action="Edit">
+    <h1 class="text-center display-4 font-title mb-4">Editar Pago</h1>
+    <form asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Pago.Id" />
 
         <div class="form-container">
@@ -71,9 +78,10 @@
             <div class="mb-3">
                 <label asp-for="Pago.Estado" class="form-label"></label>
                 <select asp-for="Pago.Estado" class="form-control">
-                    <option value="Pendiente" selected="@(Model.Pago.Estado == "Pendiente")">Pendiente</option>
-                    <option value="Completado" selected="@(Model.Pago.Estado == "Completado")">Completado</option>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Completado">Completado</option>
                 </select>
+                <span asp-validation-for="Pago.Estado" class="text-danger"></span>
             </div>
 
             <!-- Notas -->
@@ -96,7 +104,5 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
 }

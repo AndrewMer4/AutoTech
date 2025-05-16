@@ -55,45 +55,40 @@ namespace Areas.Admin.Controllers
         [HttpGet]
         public IActionResult GetClientes(string term)
         {
-            if (string.IsNullOrWhiteSpace(term))
-                return Json(new { results = Array.Empty<object>() });
-
             var items = _contenedor.Cliente
-                .GetAll(c =>
-                    (c.DUI ?? "")
-                    .Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                    (c.Nombres ?? "")
-                    .Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                    (c.Apellidos ?? "")
-                    .Contains(term, StringComparison.OrdinalIgnoreCase))
+                .GetAll()
+                .Where(c =>
+                    c.DUI.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    c.Nombres.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    c.Apellidos.Contains(term, StringComparison.OrdinalIgnoreCase))
                 .Select(c => new {
                     id = c.Id,
+                    
                     text = $"{c.DUI} – {c.Nombres} {c.Apellidos}"
-                });
+                })
+                .ToList();
+
             return Json(new { results = items });
         }
 
         [HttpGet]
-        public IActionResult GetVehiculos(string term)
-        {
-            if (string.IsNullOrWhiteSpace(term))
-                return Json(new { results = Array.Empty<object>() });
+    public IActionResult GetVehiculos(string term)
+    {
+        var items = _contenedor.Vehiculo
+            .GetAll()
+            .Where(v =>
+                v.Placa.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                v.Marca.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                v.Modelo.Contains(term, StringComparison.OrdinalIgnoreCase))
+            .Select(v => new {
+                id   = v.Placa,
+                text = $"{v.Placa} – {v.Marca} {v.Modelo}"
+            })
+            .ToList();
 
-            var items = _contenedor.Vehiculo
-                .GetAll(v =>
-                    v.Estado == "Disponible" &&
-                    ((v.Placa ?? "")
-                    .Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                    (v.Marca ?? "")
-                    .Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                    (v.Modelo ?? "")
-                    .Contains(term, StringComparison.OrdinalIgnoreCase)))
-                .Select(v => new {
-                    id = v.Placa,
-                    text = $"{v.Placa} – {v.Marca} {v.Modelo} ({v.PrecioPorDia:C})"
-                });
-            return Json(new { results = items });
-        }
+        return Json(new { results = items });
+    }
+
 
         [HttpGet]
         public IActionResult Create() =>
@@ -124,36 +119,31 @@ namespace Areas.Admin.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
         [HttpGet]
         public IActionResult Edit(int id)
         {
-            var renta = _contenedor.Renta.Get(id);
-            if (renta is null)
+            // Incluimos Cliente y Vehículo para poder leer sus datos
+            var renta = _contenedor.Renta
+                .GetFirstOrDefault(r => r.Id == id, includeProperties: "Cliente,Vehiculo");
+            if (renta == null)
                 return NotFound();
 
             var vm = new RentaVM
             {
                 Renta = renta,
-                ListaClientes = _contenedor.Cliente
-                    .GetAll()
-                    .Select(c => new SelectListItem
-                    {
-                        Text = $"{c.Nombres} {c.Apellidos} – {c.DUI}",
-                        Value = c.Id.ToString(),
-                        Selected = c.Id == renta.ClienteId
-                    }),
-                ListaVehiculos = _contenedor.Vehiculo
-                    .GetAll()
-                    .Select(v => new SelectListItem
-                    {
-                        Text = $"{v.Placa} – {v.Marca} {v.Modelo} ({v.PrecioPorDia:C}) – {v.Estado}",
-                        Value = v.Placa,
-                        Selected = v.Placa == renta.VehiculoId
-                    })
+                ClienteSearch = renta.Cliente != null
+                      ? $"{renta.Cliente.DUI} – {renta.Cliente.Nombres} {renta.Cliente.Apellidos}"
+                    : "",
+                VehiculoSearch = renta.Vehiculo != null
+                    ? $"{renta.Vehiculo.Placa} – {renta.Vehiculo.Marca} {renta.Vehiculo.Modelo}"
+                    : ""
             };
+
             return View(vm);
         }
+
+
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
