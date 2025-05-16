@@ -9,8 +9,8 @@ function cargarDataTable() {
         ajax: {
             url: "/Admin/Vehiculos/GetAll",
             type: "GET",
-            dataType: "json",    // ← Cambiado a “dataType” con T mayúscula
-            dataSrc: "data"      // ← Le decimos dónde está el array dentro del JSON
+            dataType: "json",    
+            dataSrc: "data"     
         },
         columns: [
             { data: "placa", width: "10%" },

@@ -4,7 +4,7 @@
     ViewData["Title"] = "Editar Vehículo";
 }
 
-<!-- Fuente Bebas Neue para título elegante -->
+<!-- Bebas Neue -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
 
 <style>
@@ -44,88 +44,71 @@
     }
 
     .current-img {
-        display: block;
         max-width: 150px;
         margin-bottom: 1rem;
+        display: block;
     }
 </style>
 
 <div class="container mt-5">
     <h1 class="text-center display-4 font-title mb-4">Editar Vehículo</h1>
-
-    <form asp-area="Admin"
-          asp-controller="Vehiculos"
-          asp-action="Edit"
-          method="post"
-          enctype="multipart/form-data">
+    <form asp-area="Admin" asp-controller="Vehiculos" asp-action="Edit" method="post" enctype="multipart/form-data">
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Placa" />
 
-        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
         <div class="form-container">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            <!-- Matrícula (readonly) -->
+            <!-- Placa -->
             <div class="mb-3">
                 <label asp-for="Placa" class="form-label"></label>
                 <input asp-for="Placa" class="form-control" readonly />
             </div>
 
-            <!-- Marca -->
+            <!-- Marca / Modelo / Año / Kilometraje / PrecioPorDia / Estado -->
             <div class="mb-3">
                 <label asp-for="Marca" class="form-label"></label>
                 <input asp-for="Marca" class="form-control" />
                 <span asp-validation-for="Marca" class="text-danger"></span>
             </div>
-
-            <!-- Modelo -->
             <div class="mb-3">
                 <label asp-for="Modelo" class="form-label"></label>
                 <input asp-for="Modelo" class="form-control" />
                 <span asp-validation-for="Modelo" class="text-danger"></span>
             </div>
-
-            <!-- Año -->
             <div class="mb-3">
                 <label asp-for="Anio" class="form-label"></label>
                 <input asp-for="Anio" type="number" class="form-control" />
                 <span asp-validation-for="Anio" class="text-danger"></span>
             </div>
-
-            <!-- Kilometraje -->
             <div class="mb-3">
                 <label asp-for="Kilometraje" class="form-label"></label>
                 <input asp-for="Kilometraje" type="number" class="form-control" />
                 <span asp-validation-for="Kilometraje" class="text-danger"></span>
             </div>
-
-            <!-- Precio por Día -->
             <div class="mb-3">
-                <label asp-for="PrecioPorDia" class="form-label">Precio / Día</label>
+                <label asp-for="PrecioPorDia" class="form-label"></label>
                 <input asp-for="PrecioPorDia" class="form-control" />
                 <span asp-validation-for="PrecioPorDia" class="text-danger"></span>
             </div>
-
-            <!-- Estado -->
             <div class="mb-3">
                 <label asp-for="Estado" class="form-label"></label>
                 <select asp-for="Estado" class="form-control">
-                    <option>Disponible</option>
-                    <option>En Mantenimiento</option>
-                    <option>Rentado</option>
+                    <option value="Disponible">Disponible</option>
+                    <option value="En Mantenimiento">En Mantenimiento</option>
+                    <option value="Rentado">Rentado</option>
                 </select>
                 <span asp-validation-for="Estado" class="text-danger"></span>
             </div>
 
-            <!-- Imagen actual -->
+            <!-- Imagen -->
             <div class="mb-3">
-                <label class="form-label">Imagen Actual</label><br />
+                <label class="form-label">Imagen Actual</label>
                 @if (!string.IsNullOrEmpty(Model.UrlImagen))
                 {
                     <img src="@Model.UrlImagen" alt="Imagen Vehículo" class="current-img" />
                 }
             </div>
-
-            <!-- Cambiar imagen -->
             <div class="mb-4">
                 <label class="form-label">Cambiar Imagen</label>
                 <input type="file" name="archivos" class="form-control" />
@@ -133,17 +116,13 @@
 
             <!-- Botones -->
             <div class="d-flex justify-content-between">
-                <a asp-area="Admin"
-                   asp-controller="Vehiculos"
-                   asp-action="Index"
-                   class="btn btn-secondary">
+                <a asp-area="Admin" asp-controller="Vehiculos" asp-action="Index" class="btn btn-secondary">
                     <i class="fas fa-arrow-left me-1"></i> Volver
                 </a>
                 <button type="submit" class="btn btn-dark">
                     <i class="fas fa-save me-2"></i> Guardar Cambios
                 </button>
             </div>
-
         </div>
     </form>
 </div>
@@ -151,7 +130,6 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // Convertir coma a punto antes de enviar
         document.querySelector('form').addEventListener('submit', function () {
             const p = document.querySelector("[name='PrecioPorDia']");
             if (p) p.value = p.value.replace(',', '.');

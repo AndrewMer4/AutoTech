@@ -24,14 +24,14 @@ namespace SistemaTienda.Areas.Admin.Controllers
             _hostingEnvironment = hostingEnvironment;
         }
 
-        // GET: /Admin/Vehiculos
+        
         [HttpGet]
         public IActionResult Index()
         {
             return View();
         }
 
-        // GET: /Admin/Vehiculos/GetAll
+        
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -39,14 +39,14 @@ namespace SistemaTienda.Areas.Admin.Controllers
             return Json(new { data = vehiculos });
         }
 
-        // GET: /Admin/Vehiculos/Create
+      
         [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: /Admin/Vehiculos/Create
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(Vehiculo vehiculo)
@@ -75,22 +75,24 @@ namespace SistemaTienda.Areas.Admin.Controllers
             return View(vehiculo);
         }
 
-        // GET: /Admin/Vehiculos/Edit/{placa}
+       
         [HttpGet]
-        public IActionResult Edit(string placa)
+        public IActionResult Edit(string id)
         {
-            if (string.IsNullOrEmpty(placa))
+            if (string.IsNullOrEmpty(id))
                 return BadRequest();
 
             var vehiculo = _contenedorTrabajo.Vehiculo
-                .GetFirstOrDefault(v => v.Placa == placa);
+                .GetFirstOrDefault(v => v.Placa == id);
+
             if (vehiculo == null)
                 return NotFound();
 
             return View(vehiculo);
         }
 
-        // POST: /Admin/Vehiculos/Edit
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(Vehiculo vehiculo)

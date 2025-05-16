@@ -2,14 +2,16 @@
 
 @{
     ViewData["Title"] = "Editar Renta";
-    var hoy = DateTime.Now.ToString("yyyy-MM-dd");
     var manana = DateTime.Now.AddDays(1).ToString("yyyy-MM-dd");
 }
 
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+
 <style>
     .font-title {
-        font-family: 'Bebas Neue',sans-serif;
+        font-family: 'Bebas Neue', sans-serif;
         letter-spacing: 1px;
     }
 
@@ -21,6 +23,16 @@
         margin: auto;
         box-shadow: 0 0 15px rgba(0,0,0,0.07);
     }
+
+    .select2-container--default .select2-selection--single {
+        height: 38px;
+        border: 1px solid #ced4da !important;
+        border-radius: 0.5rem !important;
+    }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+        }
 
     .form-label {
         font-weight: 600;
@@ -38,51 +50,102 @@
 </style>
 
 <div class="container mt-5">
-    <h1 class="text-center display-4">Editar Renta</h1>
+    <h1 class="text-center display-4 font-title mb-4">Editar Renta</h1>
     <form asp-action="Edit" asp-area="Admin" method="post">
+        @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Renta.Id" />
         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
+        <!-- Cliente (Select2) -->
         <div class="mb-3">
-            <label for="ClienteSearch">Cliente</label>
-            <input type="text" id="ClienteSearch" name="ClienteSearch" class="form-control"
-                   value="@Model.ClienteSearch" />
-            <input type="hidden" asp-for="Renta.ClienteId" id="ClienteId" />
+            <label asp-for="Renta.ClienteId" class="form-label">Cliente</label>
+            <select asp-for="Renta.ClienteId"
+                    class="form-control js-select2-client"
+                    data-url="@Url.Action("GetClientes", "Rentas", new { area = "Admin" })"
+                    data-init-id="@Model.Renta.ClienteId"
+                    data-init-text="@Model.ClienteSearch"
+                    data-placeholder="Escriba para buscar cliente…">
+            </select>
             <span asp-validation-for="Renta.ClienteId" class="text-danger"></span>
         </div>
 
+        <!-- Vehículo (Select2) -->
         <div class="mb-3">
-            <label for="VehiculoSearch">Vehículo</label>
-            <input type="text" id="VehiculoSearch" name="VehiculoSearch" class="form-control"
-                   value="@Model.VehiculoSearch" />
-            <input type="hidden" asp-for="Renta.VehiculoId" id="VehiculoId" />
+            <label asp-for="Renta.VehiculoId" class="form-label">Vehículo</label>
+            <select asp-for="Renta.VehiculoId"
+                    class="form-control js-select2-vehiculo"
+                    data-url="@Url.Action("GetVehiculos", "Rentas", new { area = "Admin" })"
+                    data-init-id="@Model.Renta.VehiculoId"
+                    data-init-text="@Model.VehiculoSearch"
+                    data-placeholder="Escriba para buscar vehículo…">
+            </select>
             <span asp-validation-for="Renta.VehiculoId" class="text-danger"></span>
         </div>
 
+        <!-- Fechas y Total -->
         <div class="mb-3">
-            <label asp-for="Renta.FechaInicio"></label>
+            <label asp-for="Renta.FechaInicio" class="form-label"></label>
             <input asp-for="Renta.FechaInicio" type="date" class="form-control" readonly />
             <span asp-validation-for="Renta.FechaInicio" class="text-danger"></span>
         </div>
-
         <div class="mb-3">
-            <label asp-for="Renta.FechaFin"></label>
+            <label asp-for="Renta.FechaFin" class="form-label"></label>
             <input asp-for="Renta.FechaFin" type="date" class="form-control" min="@manana" />
             <span asp-validation-for="Renta.FechaFin" class="text-danger"></span>
         </div>
-
         <div class="mb-3">
-            <label asp-for="Renta.Total"></label>
+            <label asp-for="Renta.Total" class="form-label"></label>
             <input asp-for="Renta.Total" class="form-control" readonly />
         </div>
 
-        <button type="submit" class="btn btn-dark">Guardar</button>
-        <a asp-action="Index" asp-area="Admin" class="btn btn-secondary">Cancelar</a>
+        <div class="d-flex justify-content-between">
+            <a asp-action="Index" asp-area="Admin" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-dark">Guardar</button>
+        </div>
     </form>
 </div>
 
-
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script src="~/js/Admin/renta.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(function () {
+            function setupSelect2(selector) {
+                var $el         = $(selector);
+                var url         = $el.data('url');
+                var initId      = $el.data('init-id');
+                var initText    = $el.data('init-text');
+                var placeholder = $el.data('placeholder');
+
+                $el.select2({
+                    placeholder: placeholder,
+                    allowClear: true,
+                    ajax: {
+                        url: url,
+                        dataType: 'json',
+                        delay: 250,
+                        data: params => ({ term: params.term }),
+                        processResults: data => ({ results: data.results })
+                    },
+                    minimumInputLength: 1,
+                    width: '100%'
+                });
+
+                if (initId && initText) {
+                    const option = new Option(initText, initId, true, true);
+                    $el.append(option).trigger('change');
+                }
+
+                $el.on('select2:clear', () => {
+                    if (initId && initText) {
+                        const option = new Option(initText, initId, true, true);
+                        $el.append(option).trigger('change');
+                    }
+                });
+            }
+
+            setupSelect2('.js-select2-client');
+            setupSelect2('.js-select2-vehiculo');
+        });
+    </script>
 }
