@@ -6,8 +6,9 @@ function DeleteRenta(url) {
         title: "¿Estás seguro?",
         text: "¡Este registro no se podrá recuperar!",
         icon: "warning",
-        buttons: ["Cancelar", "Sí, borrar"]
-    }).then(function (willDelete) {
+        buttons: ["Cancelar", "Sí, borrar"],
+        dangerMode: true,
+    }, function (willDelete) {
         if (!willDelete) return;
         $.ajax({
             type: "DELETE",
@@ -15,7 +16,6 @@ function DeleteRenta(url) {
             success: function (res) {
                 if (res.success) toastr.success(res.message);
                 else toastr.error(res.message);
-                // recarga la tabla si está inicializada
                 if ($.fn.DataTable.isDataTable("#tblRentas")) {
                     $("#tblRentas").DataTable().ajax.reload();
                 }

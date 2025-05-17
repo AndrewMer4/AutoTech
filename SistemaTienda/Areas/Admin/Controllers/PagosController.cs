@@ -171,20 +171,14 @@ namespace SistemaTienda.Areas.Admin.Controllers
         {
             var pago = _contenedor.Pago.Get(id);
             if (pago == null)
-                return Json(new
-                {
-                    success = false,
-                    message = "Error eliminando el pago"
-                });
+            {
+                return Json(new { success = false, message = "Pago no encontrado" });
+            }
 
             _contenedor.Pago.Remove(pago);
             _contenedor.Save();
 
-            return Json(new
-            {
-                success = true,
-                message = "Pago eliminado correctamente"
-            });
+            return Json(new { success = true, message = "Pago eliminado correctamente" });
         }
 
         // ----------  RECIBO  ----------

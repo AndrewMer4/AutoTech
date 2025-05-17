@@ -4,71 +4,113 @@
     ViewData["Title"] = "Crear Pago";
 }
 
+<!-- Fuente tipo cartel -->
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<!-- Font Awesome para íconos -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <!-- Select2 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 <style>
-    .select2-container--default .select2-selection--single {
-        height: 38px;
-        border: 1px solid #ced4da !important;
-        border-radius: 0.5rem !important;
+    .font-title {
+        font-family: 'Bebas Neue', sans-serif;
+        letter-spacing: 1px;
     }
 
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 36px;
-        }
+    .form-container {
+        background-color: #f9f9f9;
+        border-radius: 1rem;
+        padding: 2rem;
+        max-width: 800px;
+        margin: auto;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.07);
+    }
 
     .form-label {
         font-weight: 600;
         color: #333;
     }
 
-    .form-control {
-        border-radius: .5rem;
+    .form-control, .select2-container--default .select2-selection--single {
+        border-radius: 0.5rem !important;
+        height: 38px;
     }
+
+    .select2-container--default .select2-selection--single {
+        border: 1px solid #ced4da !important;
+    }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+        }
 
     .btn-dark {
         font-weight: 500;
         padding: 10px 25px;
+        background-color: #343a40;
+        border-color: #343a40;
+    }
+
+        .btn-dark:hover {
+            background-color: #23272b;
+            border-color: #1d2124;
+        }
+
+    textarea.form-control {
+        height: auto !important;
     }
 </style>
 
 <div class="container mt-5">
-    <h1 class="text-center display-4 mb-4">Crear Pago</h1>
+    <h1 class="text-center display-4 text-black font-title mb-4">Crear Pago</h1>
+
     <form method="post" asp-area="Admin" asp-controller="Pagos" asp-action="Create">
-        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div class="form-container">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-        <!-- Renta con Select2 + AJAX -->
-        <div class="mb-3">
-            <label asp-for="Pago.RentaId" class="form-label">Renta</label>
-            <select asp-for="Pago.RentaId" class="form-control js-select2-renta">
-                <option value="">Escriba para buscar…</option>
-            </select>
-            <span asp-validation-for="Pago.RentaId" class="text-danger"></span>
+            <!-- Renta con Select2 + AJAX -->
+            <div class="mb-3">
+                <label asp-for="Pago.RentaId" class="form-label">Renta</label>
+                <select asp-for="Pago.RentaId" class="form-control js-select2-renta">
+                    <option value="">Escriba para buscar…</option>
+                </select>
+                <span asp-validation-for="Pago.RentaId" class="text-danger"></span>
+            </div>
+
+            <!-- Monto auto-calculado -->
+            <div class="mb-3">
+                <label asp-for="Pago.Monto" class="form-label">Monto</label>
+                <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input asp-for="Pago.Monto" class="form-control" readonly />
+                </div>
+            </div>
+
+            <!-- Estado -->
+            <div class="mb-3">
+                <label asp-for="Pago.Estado" class="form-label">Estado</label>
+                <select asp-for="Pago.Estado" class="form-control">
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Completado">Completado</option>
+                </select>
+            </div>
+
+            <!-- Notas -->
+            <div class="mb-4">
+                <label asp-for="Pago.Notas" class="form-label">Notas</label>
+                <textarea asp-for="Pago.Notas" class="form-control" rows="3" placeholder="Ingrese cualquier observación adicional..."></textarea>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-dark">
+                    <i class="fas fa-save me-2"></i> Guardar Pago
+                </button>
+            </div>
         </div>
-
-        <!-- Monto auto-calculado -->
-        <div class="mb-3">
-            <label asp-for="Pago.Monto" class="form-label">Monto</label>
-            <input asp-for="Pago.Monto" class="form-control" readonly />
-        </div>
-
-        <!-- Estado -->
-        <div class="mb-3">
-            <label asp-for="Pago.Estado" class="form-label">Estado</label>
-            <select asp-for="Pago.Estado" class="form-control">
-                <option value="Pendiente">Pendiente</option>
-                <option value="Completado">Completado</option>
-            </select>
-        </div>
-
-        <!-- Notas -->
-        <div class="mb-4">
-            <label asp-for="Pago.Notas" class="form-label">Notas</label>
-            <textarea asp-for="Pago.Notas" class="form-control" rows="3"></textarea>
-        </div>
-
-        <button type="submit" class="btn btn-dark">Guardar</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
 
@@ -77,28 +119,29 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(function() {
-          $('.js-select2-renta').select2({
-            placeholder: "Escriba para buscar renta…",
-            allowClear: true,
-            ajax: {
-              url: '@Url.Action("GetRentas", "Pagos", new { area = "Admin" })',
-              dataType: 'json',
-              delay: 250,
-              data: params => ({ term: params.term }),
-              processResults: data => data
-            },
-            minimumInputLength: 1,
-            width: '100%'
-          });
+            // Configuración de Select2 para el campo de renta
+            $('.js-select2-renta').select2({
+                placeholder: "Escriba para buscar renta…",
+                allowClear: true,
+                ajax: {
+                    url: '@Url.Action("GetRentas", "Pagos", new { area = "Admin" })',
+                    dataType: 'json',
+                    delay: 250,
+                    data: params => ({ term: params.term }),
+                    processResults: data => data
+                },
+                minimumInputLength: 1,
+                width: '100%'
+            });
 
-          // Al seleccionar una renta, también podríamos cargar el monto con AJAX si lo deseas.
-          $('.js-select2-renta').on('select2:select', function(e) {
-            const rentaId = e.params.data.id;
-            // Opcional: descomentar y crear un endpoint GetMonto para devolver { monto: ... }
-            // $.getJSON('@Url.Action("GetMonto", "Pagos", new { area = "Admin" })', { rentaId }, function(d) {
-            //   $("input[name='Pago.Monto']").val(d.monto);
-            // });
-          });
+            // Al seleccionar una renta, cargar el monto automáticamente
+            $('.js-select2-renta').on('select2:select', function(e) {
+                const rentaId = e.params.data.id;
+                // Aquí puedes implementar la llamada AJAX para obtener el monto
+                // $.getJSON('@Url.Action("GetMonto", "Pagos", new { area = "Admin" })', { rentaId }, function(d) {
+                //   $("input[name='Pago.Monto']").val(d.monto);
+                // });
+            });
         });
     </script>
 }

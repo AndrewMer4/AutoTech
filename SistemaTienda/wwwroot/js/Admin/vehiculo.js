@@ -66,26 +66,24 @@ function Delete(url) {
     swal({
         title: "¿Está seguro de borrar?",
         text: "¡Este contenido no se puede recuperar!",
-        icon: "warning",
-        buttons: ["Cancelar", "Sí, borrar"]
-    }).then(function (willDelete) {
-        if (willDelete) {
-            $.ajax({
-                type: "DELETE",
-                url: url,
-                dataType: "json",
-                success: function (data) {
-                    if (data.success) {
-                        toastr.success(data.message);
-                    } else {
-                        toastr.error(data.message);
-                    }
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, borrar!"
+    }, function () {
+        $.ajax({
+            type: 'DELETE',
+            url: url,
+            success: function (data) {
+                if (data.success) {
+                    toastr.success(data.message);
                     dataTable.ajax.reload();
-                },
-                error: function () {
-                    toastr.error("Error en el servidor.");
+                } else {
+                    toastr.error(data.message);
                 }
-            });
-        }
+            },
+            error: function () {
+                toastr.error("Error en el servidor.");
+            }
+        });
     });
 }
