@@ -1,99 +1,68 @@
-﻿var dataTable;
+﻿var tblRentas;
 
-$(function () {
-    cargarDataTable();
-});
+$(() => initTablaRentas());
 
-function cargarDataTable() {
-    dataTable = $("#tblRentas").DataTable({
+function initTablaRentas() {
+    tblRentas = $("#tblRentas").DataTable({
+        responsive: true,
         ajax: {
             url: "/Empleado/EmpleadoRentas/GetAll",
             type: "GET",
-            datatype: "json"
+            dataType: "json",
+            dataSrc: "data"
         },
         columns: [
+            { data: "cliente", width: "20%" },
+            { data: "vehiculo", width: "20%" },
+            { data: "fechaInicio", width: "15%" },
+            { data: "fechaFin", width: "15%" },
             {
-                data: "cliente",
-                width: "20%"
-            },
-            {
-                data: "vehiculo",
-                width: "20%"
-            },
-            {
-                data: "fechainicio",
-                width: "15%"
-            },
-            {
-                data: "fechafin",
-                width: "15%"
-            },
-            {
-                data: "total",
-                render: function (data) {
-                    return "$" + parseFloat(data).toFixed(2);
-                },
-                width: "10%"
+                data: "total", width: "10%",
+                render: d => "$" + parseFloat(d).toFixed(2)
             },
             {
                 data: "id",
-                render: function (id) {
-                    return `
-                      <div class="d-flex justify-content-center gap-2">
-                        <a href="/Empleado/EmpleadoRentas/Edit/${id}" class="btn btn-success btn-sm">
-                          <i class="far fa-edit"></i> Editar
-                        </a>
-                        <button onclick="deleteRentaEmpleado('/Empleado/EmpleadoRentas/Delete/${id}')" class="btn btn-danger btn-sm">
-                          <i class="far fa-trash-alt"></i> Borrar
-                        </button>
-                      </div>`;
-                },
-                width: "20%"
+                width: "20%",
+                orderable: false,
+                searchable: false,
+                render: id => `
+  <div class="d-flex justify-content-center gap-2">
+    <a href="/Empleado/EmpleadoRentas/Edit/${id}" class="btn btn-success btn-sm">
+      <i class="far fa-edit"></i> Editar
+    </a>
+    <button onclick="borrarRenta('/Empleado/EmpleadoRentas/Delete/${id}')" class="btn btn-danger btn-sm">
+      <i class="far fa-trash-alt"></i> Borrar
+    </button>
+  </div>`
             }
         ],
-        language: {
-            emptyTable: "No hay registros",
-            info: "Mostrando _START_ a _END_ de _TOTAL_ entradas",
-            infoEmpty: "Mostrando 0 a 0 de 0 entradas",
-            infoFiltered: "(filtrado de _MAX_ totales)",
-            lengthMenu: "Mostrar _MENU_ entradas",
-            loadingRecords: "Cargando...",
-            processing: "Procesando...",
-            search: "Buscar:",
-            zeroRecords: "Sin resultados encontrados",
-            paginate: {
-                first: "Primero",
-                last: "Último",
-                next: "Siguiente",
-                previous: "Anterior"
-            }
-        },
+        language: idiomaES,
         width: "100%"
     });
 }
 
-function Delete(url) {
+function borrarRenta(url) {
     swal({
         title: "¿Está seguro de borrar?",
-        text: "¡Este contenido no se puede recuperar!",
-        type: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Sí, borrar!"
-    }, function () {
+        text: "¡Este registro no se podrá recuperar!",
+        icon: "warning",
+        buttons: ["Cancelar", "Sí, borrar"],
+        dangerMode: true
+    }).then(conf => {
+        if (!conf) return;
         $.ajax({
-            type: 'DELETE',
-            url: url,
-            success: function (data) {
-                if (data.success) {
-                    toastr.success(data.message);
-                    dataTable.ajax.reload();
-                } else {
-                    toastr.error(data.message);
-                }
+            type: "DELETE",
+            url,
+            success: r => {
+                r.success ? toastr.success(r.message)
+                    : toastr.error(r.message);
+                tblRentas.ajax.reload();
             },
-            error: function () {
-                toastr.error("Error en el servidor.");
-            }
+            error: () => toastr.error("Error en el servidor.")
         });
     });
 }
+
+/* Re-uso el mismo diccionario del otro archivo */
+importIdioma();   // 👉 pequeño truco para no duplicar código
+function importIdioma() {/* ocupado en runtim */ }

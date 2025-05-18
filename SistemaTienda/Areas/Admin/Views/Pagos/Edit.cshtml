@@ -2,35 +2,21 @@
 
 @{
     ViewData["Title"] = "Editar Pago";
+    // Texto inicial de la renta seleccionada en el dropdown
+    var currentRentaText = Model.ListaRentas
+        .FirstOrDefault(x => x.Value == Model.Pago.RentaId.ToString())?.Text
+        ?? "Escriba para buscar…";
 }
 
 <!-- Bebas Neue -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 
 <style>
     .font-title {
         font-family: 'Bebas Neue', sans-serif;
         letter-spacing: 1px;
-    }
-
-    .form-label {
-        font-weight: 600;
-        color: #333;
-    }
-
-    .form-control {
-        border-radius: 0.5rem;
-        border: 1px solid #ccc;
-    }
-
-    .btn-dark {
-        border-radius: 0.3rem;
-        padding: 10px 25px;
-        font-weight: 500;
-    }
-
-    .btn-secondary {
-        padding: 10px 20px;
     }
 
     .form-container {
@@ -42,57 +28,89 @@
         max-width: 700px;
         margin: auto;
     }
+
+    .form-label {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .form-control, .select2-container--default .select2-selection--single {
+        border-radius: 0.5rem !important;
+        height: 38px !important;
+        border: 1px solid #ccc !important;
+    }
+
+    .btn-dark {
+        border-radius: 0.3rem;
+        padding: 10px 25px;
+        font-weight: 500;
+    }
+
+    .btn-secondary {
+        padding: 10px 20px;
+    }
 </style>
 
 <div class="container mt-5">
     <h1 class="text-center display-4 font-title mb-4">Editar Pago</h1>
-    <form asp-action="Edit" method="post">
+
+    <form asp-area="Admin"
+          asp-controller="Pagos"
+          asp-action="Edit"
+          method="post">
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Pago.Id" />
 
         <div class="form-container">
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            <!-- Renta -->
+            <!-- Renta (Select2 AJAX) -->
             <div class="mb-3">
-                <label asp-for="Pago.RentaId" class="form-label"></label>
-                @Html.DropDownListFor(m => m.Pago.RentaId, Model.ListaRentas, "Seleccione una renta", new { @class = "form-control" })
+                <label asp-for="Pago.RentaId" class="form-label">Renta</label>
+                <select asp-for="Pago.RentaId"
+                        class="form-control js-select2-renta"
+                        data-url="@Url.Action("GetRentas","Pagos", new { area = "Admin" })"
+                        data-init-id="@Model.Pago.RentaId"
+                        data-init-text="@currentRentaText"
+                        data-placeholder="Escriba para buscar…">
+                </select>
                 <span asp-validation-for="Pago.RentaId" class="text-danger"></span>
             </div>
 
             <!-- Monto -->
             <div class="mb-3">
-                <label asp-for="Pago.Monto" class="form-label"></label>
+                <label asp-for="Pago.Monto" class="form-label">Monto</label>
                 <input asp-for="Pago.Monto" class="form-control" readonly />
                 <span asp-validation-for="Pago.Monto" class="text-danger"></span>
             </div>
 
             <!-- Fecha -->
             <div class="mb-3">
-                <label asp-for="Pago.FechaPago" class="form-label"></label>
+                <label asp-for="Pago.FechaPago" class="form-label">Fecha Pago</label>
                 <input asp-for="Pago.FechaPago" type="datetime-local" class="form-control" />
                 <span asp-validation-for="Pago.FechaPago" class="text-danger"></span>
             </div>
 
             <!-- Estado -->
             <div class="mb-3">
-                <label asp-for="Pago.Estado" class="form-label"></label>
+                <label asp-for="Pago.Estado" class="form-label">Estado</label>
                 <select asp-for="Pago.Estado" class="form-control">
-                    <option value="Pendiente">Pendiente</option>
-                    <option value="Completado">Completado</option>
+                    <option value="Pendiente" selected="@(Model.Pago.Estado == "Pendiente")">Pendiente</option>
+                    <option value="Completado" selected="@(Model.Pago.Estado == "Completado")">Completado</option>
                 </select>
                 <span asp-validation-for="Pago.Estado" class="text-danger"></span>
             </div>
 
             <!-- Notas -->
             <div class="mb-4">
-                <label asp-for="Pago.Notas" class="form-label"></label>
+                <label asp-for="Pago.Notas" class="form-label">Notas</label>
                 <textarea asp-for="Pago.Notas" class="form-control" rows="3"></textarea>
             </div>
 
             <!-- Botones -->
             <div class="d-flex justify-content-between">
-                <a asp-action="Index" class="btn btn-secondary">
+                <a asp-area="Admin" asp-controller="Pagos" asp-action="Index"
+                   class="btn btn-secondary">
                     <i class="fas fa-arrow-left me-1"></i> Volver
                 </a>
                 <button type="submit" class="btn btn-dark">
@@ -105,4 +123,33 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(function() {
+            var $renta = $('.js-select2-renta');
+            $renta.select2({
+                placeholder: $renta.data('placeholder'),
+                allowClear: true,
+                ajax: {
+                    url: $renta.data('url'),
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) { return { term: params.term }; },
+                    processResults: function(data) { return { results: data.results }; }
+                },
+                minimumInputLength: 1,
+                width: '100%'
+            });
+
+            // Pre-selección de la opción existente
+            var initId   = $renta.data('init-id');
+            var initText = $renta.data('init-text');
+            if (initId) {
+                var option = new Option(initText, initId, true, true);
+                $renta.append(option).trigger('change');
+            }
+        });
+    </script>
 }

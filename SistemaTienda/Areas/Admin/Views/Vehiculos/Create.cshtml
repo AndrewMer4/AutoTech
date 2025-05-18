@@ -73,11 +73,76 @@
             <span asp-validation-for="UrlImagen" class="text-danger"></span>
         </div>
 
+<<<<<<< Updated upstream
         <div class="d-flex justify-content-between">
             <a asp-area="Admin" asp-controller="Vehiculos" asp-action="Index" class="btn btn-secondary">
                 Volver
             </a>
             <button type="submit" class="btn btn-dark">Crear</button>
+=======
+            <!-- Marca -->
+            <div class="mb-3">
+                <label asp-for="Marca" class="form-label"></label>
+                <input asp-for="Marca" class="form-control" />
+                <span asp-validation-for="Marca" class="text-danger"></span>
+            </div>
+
+            <!-- Modelo -->
+            <div class="mb-3">
+                <label asp-for="Modelo" class="form-label"></label>
+                <input asp-for="Modelo" class="form-control" />
+                <span asp-validation-for="Modelo" class="text-danger"></span>
+            </div>
+
+            <!-- Año -->
+            <div class="mb-3">
+                <label asp-for="Anio" class="form-label"></label>
+                <input asp-for="Anio" type="number" class="form-control" />
+                <span asp-validation-for="Anio" class="text-danger"></span>
+            </div>
+
+            <!-- Kilometraje -->
+            <div class="mb-3">
+                <label asp-for="Kilometraje" class="form-label">Kilometraje</label>
+                <input asp-for="Kilometraje" type="number" class="form-control" />
+                <span asp-validation-for="Kilometraje" class="text-danger"></span>
+            </div>
+
+            <!-- Precio por Día -->
+            <div class="mb-3">
+                <label asp-for="PrecioPorDia" class="form-label">Precio / Día</label>
+                <input asp-for="PrecioPorDia" class="form-control" placeholder="Ej: 55.50 o 55,50" />
+                <span asp-validation-for="PrecioPorDia" class="text-danger"></span>
+            </div>
+
+            <!-- Estado -->
+            <div class="mb-3">
+                <label asp-for="Estado" class="form-label"></label>
+                <select asp-for="Estado" class="form-control">
+                    <option value="Disponible">Disponible</option>
+                    <option value="En Mantenimiento">En Mantenimiento</option>
+                    <option value="Rentado">Rentado</option>
+                </select>
+                <span asp-validation-for="Estado" class="text-danger"></span>
+            </div>
+
+            <!-- Imagen -->
+            <div class="mb-4">
+                <label asp-for="UrlImagen" class="form-label">Imagen del Vehículo</label>
+                <input type="file" name="archivos" class="form-control" />
+                <span asp-validation-for="UrlImagen" class="text-danger"></span>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Volver
+                </a>
+                <button type="submit" class="btn btn-dark">
+                    <i class="fas fa-plus me-2"></i> Crear Vehiculo
+                </button>
+            </div>
+>>>>>>> Stashed changes
         </div>
     </form>
 </div>

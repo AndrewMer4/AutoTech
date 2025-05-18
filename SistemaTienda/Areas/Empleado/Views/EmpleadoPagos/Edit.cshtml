@@ -3,9 +3,8 @@
 @{
     ViewData["Title"] = "Editar Pago";
 }
-
-<!-- Fuente Bebas Neue -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <style>
     .font-title {
@@ -14,12 +13,12 @@
     }
 
     .form-container {
-        background-color: #fff;
+        background-color: #f9f9f9;
         border-radius: 1rem;
         padding: 2rem;
         max-width: 800px;
         margin: auto;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 0 15px rgba(0,0,0,0.07);
     }
 
     .form-label {
@@ -38,53 +37,47 @@
 </style>
 
 <div class="container mt-5">
-    <h1 class="text-center display-4 font-title text-black mb-4">Editar Pago</h1>
+    <h1 class="text-center display-4 text-black font-title mb-4">Editar Pago</h1>
 
-    <form method="post" asp-action="Edit">
+    <form asp-area="Empleado"
+          asp-controller="EmpleadoPagos"
+          asp-action="Edit"
+          method="post">
         <input type="hidden" asp-for="Pago.Id" />
 
         <div class="form-container">
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            <!-- Renta -->
             <div class="mb-3">
-                <label asp-for="Pago.RentaId" class="form-label"></label>
-                @Html.DropDownListFor(m => m.Pago.RentaId, Model.ListaRentas, "Seleccione una renta", new { @class = "form-control" })
+                <label asp-for="Pago.RentaId" class="form-label">Renta</label>
+                @Html.DropDownListFor(m => m.Pago.RentaId,
+                         Model.ListaRentas,
+                         "Seleccione una renta",
+                         new { @class = "form-control" })
                 <span asp-validation-for="Pago.RentaId" class="text-danger"></span>
             </div>
 
-            <!-- Monto -->
             <div class="mb-3">
-                <label asp-for="Pago.Monto" class="form-label"></label>
+                <label asp-for="Pago.Monto" class="form-label">Monto</label>
                 <input asp-for="Pago.Monto" class="form-control" readonly />
-                <span asp-validation-for="Pago.Monto" class="text-danger"></span>
             </div>
 
-            <!-- Fecha -->
             <div class="mb-3">
-                <label asp-for="Pago.FechaPago" class="form-label"></label>
-                <input asp-for="Pago.FechaPago" type="datetime-local" class="form-control" />
-                <span asp-validation-for="Pago.FechaPago" class="text-danger"></span>
-            </div>
-
-            <!-- Estado -->
-            <div class="mb-3">
-                <label asp-for="Pago.Estado" class="form-label"></label>
+                <label asp-for="Pago.Estado" class="form-label">Estado</label>
                 <select asp-for="Pago.Estado" class="form-control">
                     <option value="Pendiente" selected="@(Model.Pago.Estado == "Pendiente")">Pendiente</option>
                     <option value="Completado" selected="@(Model.Pago.Estado == "Completado")">Completado</option>
                 </select>
             </div>
 
-            <!-- Notas -->
             <div class="mb-4">
-                <label asp-for="Pago.Notas" class="form-label"></label>
+                <label asp-for="Pago.Notas" class="form-label">Notas</label>
                 <textarea asp-for="Pago.Notas" class="form-control" rows="3"></textarea>
             </div>
 
-            <!-- Botones -->
             <div class="d-flex justify-content-between">
-                <a asp-action="Index" class="btn btn-secondary">
+                <a asp-area="Empleado" asp-controller="EmpleadoPagos" asp-action="Index"
+                   class="btn btn-secondary">
                     <i class="fas fa-arrow-left me-1"></i> Volver
                 </a>
                 <button type="submit" class="btn btn-dark">
@@ -96,7 +89,5 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
 }

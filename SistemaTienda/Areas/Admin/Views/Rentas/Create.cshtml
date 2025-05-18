@@ -1,14 +1,21 @@
 ﻿@model SistemaTienda.Models.ViewModels.RentaVM
 
 @{
-    ViewData["Title"] = "Registrar Renta";
+    ViewData["Title"] = "Crear Renta";
     var hoy = DateTime.Now.ToString("yyyy-MM-dd");
     var manana = DateTime.Now.AddDays(1).ToString("yyyy-MM-dd");
 }
 
+<<<<<<< Updated upstream
 <!-- Select2 CSS -->
+=======
+<!-- Bebas Neue + FontAwesome + Select2 CSS -->
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+>>>>>>> Stashed changes
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
+<<<<<<< Updated upstream
     .select2-container--default .select2-selection--single {
         height: 38px;
         border: 1px solid #ced4da !important;
@@ -18,12 +25,28 @@
         .select2-container--default .select2-selection--single .select2-selection__arrow {
             height: 36px;
         }
+=======
+    .font-title {
+        font-family: 'Bebas Neue', sans-serif;
+        letter-spacing: 1px;
+    }
+
+    .form-container {
+        background-color: #f9f9f9;
+        border-radius: 1rem;
+        padding: 2rem;
+        max-width: 800px;
+        margin: auto;
+        box-shadow: 0 0 15px rgba(0,0,0,0.07);
+    }
+>>>>>>> Stashed changes
 
     .form-label {
         font-weight: 600;
         color: #333;
     }
 
+<<<<<<< Updated upstream
     .form-control {
         border-radius: .5rem;
     }
@@ -31,10 +54,32 @@
     .btn-dark {
         font-weight: 500;
         padding: 10px 25px;
+=======
+    .form-control, .select2-container--default .select2-selection--single {
+        border-radius: 0.5rem !important;
+        height: 38px;
+        border: 1px solid #ced4da !important;
     }
+
+    .input-group-text {
+        background: #e9ecef;
+    }
+
+    .btn-dark {
+        font-weight: 500;
+        padding: 10px 25px;
+        background: #343a40;
+        border: none;
+>>>>>>> Stashed changes
+    }
+
+        .btn-dark:hover {
+            background: #23272b;
+        }
 </style>
 
 <div class="container mt-5">
+<<<<<<< Updated upstream
     <h1 class="text-center display-4 mb-4">Registrar Renta</h1>
 
     <form method="post" asp-area="Admin" asp-controller="Rentas" asp-action="Create">
@@ -84,6 +129,85 @@
             <button type="submit" class="btn btn-dark">
                 <i class="fas fa-car me-2"></i> Registrar
             </button>
+=======
+    <h1 class="text-center display-4 font-title mb-4">Crear Renta</h1>
+
+    <form asp-area="Admin" asp-controller="Rentas" asp-action="Create" method="post">
+        <div class="form-container">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <!-- Cliente -->
+            <div class="mb-3">
+                <label asp-for="Renta.ClienteId" class="form-label">Cliente</label>
+                <select asp-for="Renta.ClienteId"
+                        class="form-control js-select2-client"
+                        data-url="@Url.Action("GetClientes","Rentas", new { area="Admin" })"
+                        data-placeholder="Escriba para buscar cliente…">
+                    <option value=""></option>
+                </select>
+                <span asp-validation-for="Renta.ClienteId" class="text-danger"></span>
+            </div>
+
+            <!-- Vehículo -->
+            <div class="mb-3">
+                <label asp-for="Renta.VehiculoId" class="form-label">Vehículo</label>
+                <select asp-for="Renta.VehiculoId"
+                        class="form-control js-select2-vehiculo"
+                        data-url="@Url.Action("GetVehiculos","Rentas", new { area="Admin" })"
+                        data-placeholder="Escriba para buscar vehículo…">
+                    <option value=""></option>
+                </select>
+                <span asp-validation-for="Renta.VehiculoId" class="text-danger"></span>
+            </div>
+
+            <!-- Fechas lado a lado -->
+            <div class="row mb-3">
+                <div class="col">
+                    <label asp-for="Renta.FechaInicio" class="form-label">Fecha Inicio</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                        <input asp-for="Renta.FechaInicio"
+                               type="date"
+                               class="form-control"
+                               min="@hoy"
+                               value="@hoy"
+                               readonly />
+                    </div>
+                    <span asp-validation-for="Renta.FechaInicio" class="text-danger"></span>
+                </div>
+                <div class="col">
+                    <label asp-for="Renta.FechaFin" class="form-label">Fecha Fin</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                        <input asp-for="Renta.FechaFin"
+                               type="date"
+                               class="form-control"
+                               min="@manana"
+                               value="@manana" />
+                    </div>
+                    <span asp-validation-for="Renta.FechaFin" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- Total -->
+            <div class="mb-4">
+                <label asp-for="Renta.Total" class="form-label">Total Estimado</label>
+                <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input asp-for="Renta.Total" class="form-control" readonly />
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Volver
+                </a>
+                <button type="submit" class="btn btn-dark">
+                    <i class="fas fa-plus me-2"></i> Crear Renta
+                </button>
+            </div>
+>>>>>>> Stashed changes
         </div>
     </form>
 </div>
@@ -93,33 +217,24 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(function() {
-          $('.js-select2-client').select2({
-            placeholder: "Escriba para buscar cliente…",
-            allowClear: true,
-            ajax: {
-              url: '@Url.Action("GetClientes", "Rentas", new { area = "Admin" })',
-              dataType: 'json',
-              delay: 250,
-              data: params => ({ term: params.term }),
-              processResults: data => data
-            },
-            minimumInputLength: 1,
-            width: '100%'
-          });
-
-          $('.js-select2-vehiculo').select2({
-            placeholder: "Escriba para buscar vehículo…",
-            allowClear: true,
-            ajax: {
-              url: '@Url.Action("GetVehiculos", "Rentas", new { area = "Admin" })',
-              dataType: 'json',
-              delay: 250,
-              data: params => ({ term: params.term }),
-              processResults: data => data
-            },
-            minimumInputLength: 1,
-            width: '100%'
-          });
+            function initSelect2(selector) {
+                var $el = $(selector);
+                $el.select2({
+                    placeholder: $el.data('placeholder'),
+                    allowClear: true,
+                    ajax: {
+                        url: $el.data('url'),
+                        dataType: 'json',
+                        delay: 250,
+                        data: params => ({ term: params.term }),
+                        processResults: data => ({ results: data.results })
+                    },
+                    minimumInputLength: 1,
+                    width: '100%'
+                });
+            }
+            initSelect2('.js-select2-client');
+            initSelect2('.js-select2-vehiculo');
         });
     </script>
 }

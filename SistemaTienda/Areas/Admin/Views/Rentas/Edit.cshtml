@@ -3,9 +3,18 @@
 @{
     ViewData["Title"] = "Editar Renta";
     var manana = DateTime.Now.AddDays(1).ToString("yyyy-MM-dd");
+    // texto actual para preseleccionar
+    var initClienteText = Model.ClienteSearch;
+    var initVehiculoText = Model.VehiculoSearch;
 }
 
+<<<<<<< Updated upstream
 <!-- Select2 CSS -->
+=======
+<!-- Bebas Neue + FontAwesome + Select2 CSS -->
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+>>>>>>> Stashed changes
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
 
@@ -16,10 +25,17 @@
     }
 
     .form-container {
+<<<<<<< Updated upstream
         background: #f9f9f9;
         border-radius: 1rem;
         padding: 2rem;
         max-width: 750px;
+=======
+        background-color: #f9f9f9;
+        border-radius: 1rem;
+        padding: 2rem;
+        max-width: 800px;
+>>>>>>> Stashed changes
         margin: auto;
         box-shadow: 0 0 15px rgba(0,0,0,0.07);
     }
@@ -39,6 +55,7 @@
         color: #333;
     }
 
+<<<<<<< Updated upstream
     .form-control {
         border-radius: 0.5rem;
     }
@@ -47,10 +64,33 @@
         font-weight: 500;
         padding: 10px 25px;
     }
+=======
+    .form-control, .select2-container--default .select2-selection--single {
+        border-radius: 0.5rem !important;
+        height: 38px;
+        border: 1px solid #ced4da !important;
+    }
+
+    .input-group-text {
+        background: #e9ecef;
+    }
+
+    .btn-dark {
+        font-weight: 500;
+        padding: 10px 25px;
+        background: #343a40;
+        border: none;
+    }
+
+        .btn-dark:hover {
+            background: #23272b;
+        }
+>>>>>>> Stashed changes
 </style>
 
 <div class="container mt-5">
     <h1 class="text-center display-4 font-title mb-4">Editar Renta</h1>
+<<<<<<< Updated upstream
     <form asp-action="Edit" asp-area="Admin" method="post">
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Renta.Id" />
@@ -101,6 +141,88 @@
         <div class="d-flex justify-content-between">
             <a asp-action="Index" asp-area="Admin" class="btn btn-secondary">Cancelar</a>
             <button type="submit" class="btn btn-dark">Guardar</button>
+=======
+
+    <form asp-area="Admin" asp-controller="Rentas" asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Renta.Id" />
+
+        <div class="form-container">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <!-- Cliente -->
+            <div class="mb-3">
+                <label asp-for="Renta.ClienteId" class="form-label">Cliente</label>
+                <select asp-for="Renta.ClienteId"
+                        class="form-control js-select2-client"
+                        data-url="@Url.Action("GetClientes","Rentas", new { area="Admin" })"
+                        data-init-id="@Model.Renta.ClienteId"
+                        data-init-text="@initClienteText"
+                        data-placeholder="Escriba para buscar cliente…">
+                    <option value=""></option>
+                </select>
+                <span asp-validation-for="Renta.ClienteId" class="text-danger"></span>
+            </div>
+
+            <!-- Vehículo -->
+            <div class="mb-3">
+                <label asp-for="Renta.VehiculoId" class="form-label">Vehículo</label>
+                <select asp-for="Renta.VehiculoId"
+                        class="form-control js-select2-vehiculo"
+                        data-url="@Url.Action("GetVehiculos","Rentas", new { area="Admin" })"
+                        data-init-id="@Model.Renta.VehiculoId"
+                        data-init-text="@initVehiculoText"
+                        data-placeholder="Escriba para buscar vehículo…">
+                    <option value=""></option>
+                </select>
+                <span asp-validation-for="Renta.VehiculoId" class="text-danger"></span>
+            </div>
+
+            <!-- Fechas lado a lado -->
+            <div class="row mb-3">
+                <div class="col">
+                    <label asp-for="Renta.FechaInicio" class="form-label">Fecha Inicio</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                        <input asp-for="Renta.FechaInicio"
+                               type="date"
+                               class="form-control"
+                               readonly />
+                    </div>
+                    <span asp-validation-for="Renta.FechaInicio" class="text-danger"></span>
+                </div>
+                <div class="col">
+                    <label asp-for="Renta.FechaFin" class="form-label">Fecha Fin</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                        <input asp-for="Renta.FechaFin"
+                               type="date"
+                               class="form-control"
+                               min="@manana" />
+                    </div>
+                    <span asp-validation-for="Renta.FechaFin" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- Total -->
+            <div class="mb-4">
+                <label asp-for="Renta.Total" class="form-label">Total Estimado</label>
+                <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input asp-for="Renta.Total" class="form-control" readonly />
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-between">
+                <a asp-area="Admin" asp-controller="Rentas" asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Volver
+                </a>
+                <button type="submit" class="btn btn-dark">
+                    <i class="fas fa-save me-2"></i> Guardar Cambios
+                </button>
+            </div>
+>>>>>>> Stashed changes
         </div>
     </form>
 </div>
@@ -109,19 +231,14 @@
     <partial name="_ValidationScriptsPartial" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        $(function () {
-            function setupSelect2(selector) {
-                var $el         = $(selector);
-                var url         = $el.data('url');
-                var initId      = $el.data('init-id');
-                var initText    = $el.data('init-text');
-                var placeholder = $el.data('placeholder');
-
+        $(function() {
+            function initSelect2(selector) {
+                var $el = $(selector);
                 $el.select2({
-                    placeholder: placeholder,
+                    placeholder: $el.data('placeholder'),
                     allowClear: true,
                     ajax: {
-                        url: url,
+                        url: $el.data('url'),
                         dataType: 'json',
                         delay: 250,
                         data: params => ({ term: params.term }),
@@ -130,22 +247,16 @@
                     minimumInputLength: 1,
                     width: '100%'
                 });
-
-                if (initId && initText) {
-                    const option = new Option(initText, initId, true, true);
+                // preselección
+                var id   = $el.data('init-id'),
+                    text = $el.data('init-text');
+                if (id && text) {
+                    var option = new Option(text, id, true, true);
                     $el.append(option).trigger('change');
                 }
-
-                $el.on('select2:clear', () => {
-                    if (initId && initText) {
-                        const option = new Option(initText, initId, true, true);
-                        $el.append(option).trigger('change');
-                    }
-                });
             }
-
-            setupSelect2('.js-select2-client');
-            setupSelect2('.js-select2-vehiculo');
+            initSelect2('.js-select2-client');
+            initSelect2('.js-select2-vehiculo');
         });
     </script>
 }

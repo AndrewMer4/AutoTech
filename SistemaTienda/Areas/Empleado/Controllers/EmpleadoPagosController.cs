@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
+﻿using System;
+using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -8,8 +9,6 @@ using SistemaTienda.Data;
 using SistemaTienda.Models;
 using SistemaTienda.Models.ViewModels;
 using SistemaTienda.Utilidades;
-using System;
-using System.Linq;
 
 namespace SistemaTienda.Areas.Empleado.Controllers
 {
@@ -20,142 +19,87 @@ namespace SistemaTienda.Areas.Empleado.Controllers
         private readonly IContenedorTrabajo _contenedor;
         private readonly ApplicationDbContext _context;
 
-        public EmpleadoPagosController(
-            IContenedorTrabajo contenedor,
-            ApplicationDbContext context)
+        public EmpleadoPagosController(IContenedorTrabajo contenedor, ApplicationDbContext context)
         {
             _contenedor = contenedor;
             _context = context;
         }
 
-        // GET: /Empleado/EmpleadoPagos
-        [HttpGet]
-        public IActionResult Index() => View();
+        // ----------  INDEX & DATATABLE  ----------
+        [HttpGet] public IActionResult Index() => View();
 
-        // GET: /Empleado/EmpleadoPagos/GetAll
         [HttpGet]
         public IActionResult GetAll()
         {
             var data = _context.Pago
                 .Include(p => p.Renta).ThenInclude(r => r.Cliente)
                 .Include(p => p.Renta).ThenInclude(r => r.Vehiculo)
+                .AsNoTracking()
                 .Select(p => new {
                     id = p.Id,
-                    cliente = p.Renta.Cliente.Nombres + " " + p.Renta.Cliente.Apellidos,
-                    vehiculo = p.Renta.Vehiculo.Marca + " " + p.Renta.Vehiculo.Modelo,
+                    cliente = $"{p.Renta.Cliente.Nombres} {p.Renta.Cliente.Apellidos}",
+                    vehiculo = $"{p.Renta.Vehiculo.Marca} {p.Renta.Vehiculo.Modelo}",
                     monto = p.Monto,
-                    fechapago = p.FechaPago.ToString("yyyy-MM-dd HH:mm"),
+                    fechaPago = p.FechaPago.ToString("yyyy-MM-dd HH:mm"),
                     estado = p.Estado
                 });
             return Json(new { data });
         }
 
-        // GET: /Empleado/EmpleadoPagos/Create
+        // ----------  CREATE ----------
         [HttpGet]
-        public IActionResult Create()
-        {
-            var vm = new PagoVM
-            {
-                Pago = new Pago(),
-                ListaRentas = _context.Renta
-                    .Include(r => r.Cliente)
-                    .Include(r => r.Vehiculo)
-                    .Select(r => new SelectListItem
-                    {
-                        Text = $"{r.Cliente.Nombres} {r.Cliente.Apellidos} — {r.Vehiculo.Marca} {r.Vehiculo.Modelo}",
-                        Value = r.Id.ToString()
-                    })
-            };
-            return View(vm);
-        }
+        public IActionResult Create() => View(BuildVM(new Pago()));
 
-        // POST: /Empleado/EmpleadoPagos/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(PagoVM pagoVM)
+        public IActionResult Create(PagoVM vm)
         {
             if (!ModelState.IsValid)
-            {
-                pagoVM.ListaRentas = _context.Renta
-                    .Include(r => r.Cliente)
-                    .Include(r => r.Vehiculo)
-                    .Select(r => new SelectListItem
-                    {
-                        Text = $"{r.Cliente.Nombres} {r.Cliente.Apellidos} — {r.Vehiculo.Marca} {r.Vehiculo.Modelo}",
-                        Value = r.Id.ToString()
-                    });
-                return View(pagoVM);
-            }
+                return View(BuildVM(vm.Pago));
 
-            var renta = _contenedor.Renta.Get(pagoVM.Pago.RentaId);
-            if (renta == null)
+            var renta = _contenedor.Renta.Get(vm.Pago.RentaId);
+            if (renta is null)
             {
                 ModelState.AddModelError("", "Renta no válida.");
-                return View(pagoVM);
+                return View(BuildVM(vm.Pago));
             }
 
-            pagoVM.Pago.Monto = renta.Total;
-            pagoVM.Pago.FechaPago = DateTime.Now;
-            pagoVM.Pago.Estado = "Pendiente";
+            vm.Pago.Monto = renta.Total;
+            vm.Pago.FechaPago = DateTime.Now;
+            vm.Pago.Estado = "Pendiente";
 
-            _contenedor.Pago.Add(pagoVM.Pago);
+            _contenedor.Pago.Add(vm.Pago);
             _contenedor.Save();
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: /Empleado/EmpleadoPagos/Edit/5
+        // ----------  EDIT ----------
         [HttpGet]
         public IActionResult Edit(int id)
         {
             var pago = _contenedor.Pago.Get(id);
-            if (pago == null) return NotFound();
-
-            var vm = new PagoVM
-            {
-                Pago = pago,
-                ListaRentas = _context.Renta
-                    .Include(r => r.Cliente)
-                    .Include(r => r.Vehiculo)
-                    .Select(r => new SelectListItem
-                    {
-                        Text = $"{r.Cliente.Nombres} {r.Cliente.Apellidos} — {r.Vehiculo.Marca} {r.Vehiculo.Modelo}",
-                        Value = r.Id.ToString(),
-                        Selected = r.Id == pago.RentaId
-                    })
-            };
-            return View(vm);
+            if (pago is null) return NotFound();
+            return View(BuildVM(pago));
         }
 
-        // POST: /Empleado/EmpleadoPagos/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(PagoVM pagoVM)
+        public IActionResult Edit(PagoVM vm)
         {
             if (!ModelState.IsValid)
-            {
-                pagoVM.ListaRentas = _context.Renta
-                    .Include(r => r.Cliente)
-                    .Include(r => r.Vehiculo)
-                    .Select(r => new SelectListItem
-                    {
-                        Text = $"{r.Cliente.Nombres} {r.Cliente.Apellidos} — {r.Vehiculo.Marca} {r.Vehiculo.Modelo}",
-                        Value = r.Id.ToString(),
-                        Selected = r.Id == pagoVM.Pago.RentaId
-                    });
-                return View(pagoVM);
-            }
+                return View(BuildVM(vm.Pago));
 
-            _contenedor.Pago.Update(pagoVM.Pago);
+            _contenedor.Pago.Update(vm.Pago);
             _contenedor.Save();
             return RedirectToAction(nameof(Index));
         }
 
-        // DELETE: /Empleado/EmpleadoPagos/Delete/5
+        // ---------- DELETE ----------
         [HttpDelete]
         public IActionResult Delete(int id)
         {
             var pago = _contenedor.Pago.Get(id);
-            if (pago == null)
+            if (pago is null)
                 return Json(new { success = false, message = "Pago no encontrado." });
 
             _contenedor.Pago.Remove(pago);
@@ -163,16 +107,31 @@ namespace SistemaTienda.Areas.Empleado.Controllers
             return Json(new { success = true, message = "Pago eliminado." });
         }
 
-        // GET: /Empleado/EmpleadoPagos/Recibo/5
+        // ---------- RECIBO ----------
         [HttpGet]
         public IActionResult Recibo(int id)
         {
             var pago = _context.Pago
                 .Include(p => p.Renta).ThenInclude(r => r.Cliente)
                 .Include(p => p.Renta).ThenInclude(r => r.Vehiculo)
+                .AsNoTracking()
                 .FirstOrDefault(p => p.Id == id);
-            if (pago == null) return NotFound();
-            return View(pago);
+            return pago is null ? NotFound() : View("~/Areas/Admin/Views/Pagos/Recibo.cshtml", pago);
         }
+
+        // ---------- Helper ----------
+        private PagoVM BuildVM(Pago pago) =>
+            new()
+            {
+                Pago = pago,
+                ListaRentas = _contenedor.Renta
+                    .GetAll(includeProperties: "Cliente,Vehiculo")
+                    .Select(r => new SelectListItem
+                    {
+                        Value = r.Id.ToString(),
+                        Text = $"{r.Cliente.Nombres} {r.Cliente.Apellidos} — {r.Vehiculo.Marca} {r.Vehiculo.Modelo}",
+                        Selected = r.Id == pago.RentaId
+                    })
+            };
     }
 }
