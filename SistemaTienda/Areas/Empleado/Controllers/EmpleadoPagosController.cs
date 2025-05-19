@@ -119,7 +119,7 @@ namespace SistemaTienda.Areas.Empleado.Controllers
             return pago is null ? NotFound() : View("~/Areas/Admin/Views/Pagos/Recibo.cshtml", pago);
         }
 
-        // ---------- Helper ----------
+       
         private PagoVM BuildVM(Pago pago) =>
             new()
             {

@@ -322,6 +322,8 @@ namespace SistemaTienda.AccesoDatos.Migrations
 
                     b.HasIndex("ClienteId");
 
+                    b.HasIndex("UsuarioId");
+
                     b.HasIndex("VehiculoId");
 
                     b.ToTable("Renta");
@@ -433,6 +435,10 @@ namespace SistemaTienda.AccesoDatos.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("SistemaTienda.Models.ApplicationUser", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId");
+
                     b.HasOne("SistemaTienda.Models.Vehiculo", "Vehiculo")
                         .WithMany()
                         .HasForeignKey("VehiculoId")
@@ -440,6 +446,8 @@ namespace SistemaTienda.AccesoDatos.Migrations
                         .IsRequired();
 
                     b.Navigation("Cliente");
+
+                    b.Navigation("Usuario");
 
                     b.Navigation("Vehiculo");
                 });

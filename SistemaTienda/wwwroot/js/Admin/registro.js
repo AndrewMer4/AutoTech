@@ -17,6 +17,7 @@ function cargarDataTable() {
             { data: "apellido", width: "20%" },
             { data: "email", width: "25%" },
             { data: "role", width: "15%" },
+            { data: "rentas", title: "# Rentas", width: "10%" },
             {
                 data: "id",
                 width: "20%",
@@ -30,6 +31,9 @@ function cargarDataTable() {
                         <button onclick="eliminarUsuario('${id}')" class="btn btn-danger btn-sm">
                           <i class="far fa-trash-alt"></i> Eliminar
                         </button>
+                         <a href="/Admin/Registro/UserRentals/${id}" class="btn btn-info btn-sm">
+              <i class="fas fa-history"></i> Historial
+            </a>
                       </div>`;
                 }
             }

@@ -24,14 +24,14 @@ namespace SistemaTienda.Areas.Admin.Controllers
             _hostingEnvironment = hostingEnvironment;
         }
 
-        
+
         [HttpGet]
         public IActionResult Index()
         {
             return View();
         }
 
-        
+
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -39,14 +39,14 @@ namespace SistemaTienda.Areas.Admin.Controllers
             return Json(new { data = vehiculos });
         }
 
-      
+
         [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
 
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(Vehiculo vehiculo)
@@ -75,7 +75,7 @@ namespace SistemaTienda.Areas.Admin.Controllers
             return View(vehiculo);
         }
 
-       
+
         [HttpGet]
         public IActionResult Edit(string id)
         {
@@ -145,19 +145,27 @@ namespace SistemaTienda.Areas.Admin.Controllers
         [HttpDelete]
         public IActionResult Delete(string placa)
         {
-            var vehiculo = _contenedorTrabajo.Vehiculo
-                .GetFirstOrDefault(v => v.Placa == placa);
+            var vehiculo = _contenedorTrabajo.Vehiculo.GetFirstOrDefault(v => v.Placa == placa);
             if (vehiculo == null)
                 return Json(new { success = false, message = "Vehículo no encontrado" });
 
-            bool tieneRentas = _contenedorTrabajo.Renta
-                .GetAll(r => r.VehiculoId == placa)
-                .Any();
+            bool tieneRentas = _contenedorTrabajo.Renta.GetAll(r => r.VehiculoId == placa).Any();
             if (tieneRentas)
-                return Json(new { success = false, message = "No se puede eliminar el vehículo porque tiene rentas asociadas." });
+                return Json(new { success = false, message = "No se puede eliminar el vehículo porque tiene rentas asociadas" });
+
+            // Eliminar imagen si existe
+            if (!string.IsNullOrEmpty(vehiculo.UrlImagen))
+            {
+                var imagenPath = Path.Combine(_hostingEnvironment.WebRootPath, vehiculo.UrlImagen.TrimStart('/'));
+                if (System.IO.File.Exists(imagenPath))
+                {
+                    System.IO.File.Delete(imagenPath);
+                }
+            }
 
             _contenedorTrabajo.Vehiculo.Remove(vehiculo);
             _contenedorTrabajo.Save();
+
             return Json(new { success = true, message = "Vehículo eliminado correctamente" });
         }
     }
