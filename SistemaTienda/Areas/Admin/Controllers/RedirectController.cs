@@ -1,13 +1,22 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using SistemaTienda.Utilidades;
 
-namespace Renta_Car.Areas.Admin.Controllers
+public class RedirectController : Controller
 {
-    public class RedirectController : Controller
+
+    public IActionResult ToAdmin()
     {
-        public IActionResult ToAdmin()
+        if (User.Identity?.IsAuthenticated == true)
         {
-            return RedirectToAction("Index", "Home", new { area = "Admin" });
+            if (User.IsInRole(CNT.Admin))
+                return RedirectToAction("Index", "Home", new { area = "Admin" });
+
+            if (User.IsInRole(CNT.Empleado))
+                return RedirectToAction("Index", "Home", new { area = "Empleado" });
         }
+
+        return RedirectToPage("/Account/Login", new { area = "Identity" });
     }
 }
+
+//using Microsoft.AspNetCore.Http;

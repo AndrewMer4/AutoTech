@@ -9,8 +9,8 @@ function cargarDataTable() {
         ajax: {
             url: "/Admin/Vehiculos/GetAll",
             type: "GET",
-            dataType: "json",    
-            dataSrc: "data"     
+            dataType: "json",
+            dataSrc: "data"
         },
         columns: [
             { data: "placa", width: "10%" },
@@ -32,7 +32,11 @@ function cargarDataTable() {
                     : ""
             },
             {
+                // Acción Borrar + Editar
                 data: "placa",
+                width: "15%",
+                orderable: false,
+                searchable: false,
                 render: placa => `
     <div class="d-flex justify-content-center gap-2">
       <a href="/Admin/Vehiculos/Edit/${placa}" class="btn btn-success btn-sm">
@@ -50,7 +54,10 @@ function cargarDataTable() {
             infoEmpty: "Mostrando 0 a 0 de 0",
             infoFiltered: "(filtrado de _MAX_ totales)",
             lengthMenu: "Mostrar _MENU_ registros",
+            loadingRecords: "Cargando...",
+            processing: "Procesando...",
             search: "Buscar:",
+            zeroRecords: "Sin resultados encontrados",
             paginate: {
                 first: "Primero",
                 last: "Último",
@@ -58,10 +65,12 @@ function cargarDataTable() {
                 previous: "Anterior"
             }
         },
+        responsive: true,
         width: "100%"
     });
 }
 
+//det
 function Delete(url) {
     swal({
         title: "¿Está seguro de borrar?",

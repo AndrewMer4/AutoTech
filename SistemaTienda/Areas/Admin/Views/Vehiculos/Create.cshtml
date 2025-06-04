@@ -4,10 +4,10 @@
     ViewData["Title"] = "Crear Vehículo";
 }
 
-<!-- Fuente tipo cartel -->
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
-<!-- Font Awesome para íconos -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<!-- Bebas Neue + FontAwesome -->
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
 <style>
     .font-title {
@@ -21,7 +21,7 @@
         padding: 2rem;
         max-width: 800px;
         margin: auto;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.07);
+        box-shadow: 0 0 15px rgba(0,0,0,0.07);
     }
 
     .form-label {
@@ -31,6 +31,8 @@
 
     .form-control {
         border-radius: 0.5rem;
+        height: 38px;
+        border: 1px solid #ced4da;
     }
 
     .btn-dark {
@@ -54,35 +56,36 @@
           asp-action="Create"
           method="post"
           enctype="multipart/form-data">
-
         @Html.AntiForgeryToken()
-        <div class="form-container">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
+        <!-- Muestro TODOS los errores de validación -->
+        <div asp-validation-summary="All" class="text-danger mb-4"></div>
+
+        <div class="form-container">
             <!-- Placa -->
             <div class="mb-3">
-                <label asp-for="Placa" class="form-label"></label>
+                <label asp-for="Placa" class="form-label">Placa</label>
                 <input asp-for="Placa" class="form-control" placeholder="A 123 456" />
                 <span asp-validation-for="Placa" class="text-danger"></span>
             </div>
 
             <!-- Marca -->
             <div class="mb-3">
-                <label asp-for="Marca" class="form-label"></label>
+                <label asp-for="Marca" class="form-label">Marca</label>
                 <input asp-for="Marca" class="form-control" />
                 <span asp-validation-for="Marca" class="text-danger"></span>
             </div>
 
             <!-- Modelo -->
             <div class="mb-3">
-                <label asp-for="Modelo" class="form-label"></label>
+                <label asp-for="Modelo" class="form-label">Modelo</label>
                 <input asp-for="Modelo" class="form-control" />
                 <span asp-validation-for="Modelo" class="text-danger"></span>
             </div>
 
             <!-- Año -->
             <div class="mb-3">
-                <label asp-for="Anio" class="form-label"></label>
+                <label asp-for="Anio" class="form-label">Año</label>
                 <input asp-for="Anio" type="number" class="form-control" />
                 <span asp-validation-for="Anio" class="text-danger"></span>
             </div>
@@ -103,8 +106,9 @@
 
             <!-- Estado -->
             <div class="mb-3">
-                <label asp-for="Estado" class="form-label"></label>
+                <label asp-for="Estado" class="form-label">Estado</label>
                 <select asp-for="Estado" class="form-control">
+                    <option value="">-- Seleccione --</option>
                     <option value="Disponible">Disponible</option>
                     <option value="En Mantenimiento">En Mantenimiento</option>
                     <option value="Rentado">Rentado</option>
@@ -115,17 +119,21 @@
             <!-- Imagen -->
             <div class="mb-4">
                 <label asp-for="UrlImagen" class="form-label">Imagen del Vehículo</label>
-                <input type="file" name="archivos" class="form-control" />
+                <!-- ahora uso asp-for para que la clave del campo coincida -->
+                <input asp-for="UrlImagen" type="file" class="form-control" />
                 <span asp-validation-for="UrlImagen" class="text-danger"></span>
             </div>
 
             <!-- Botones -->
             <div class="d-flex justify-content-between">
-                <a asp-area="Admin" asp-controller="Vehiculos" asp-action="Index" class="btn btn-secondary">
+                <a asp-area="Admin"
+                   asp-controller="Vehiculos"
+                   asp-action="Index"
+                   class="btn btn-secondary">
                     <i class="fas fa-arrow-left me-1"></i> Volver
                 </a>
                 <button type="submit" class="btn btn-dark">
-                    <i class="fas fa-plus me-2"></i> Crear
+                    <i class="fas fa-plus me-2"></i> Crear Vehículo
                 </button>
             </div>
         </div>
@@ -135,8 +143,9 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+        // Convertir coma a punto en PrecioPorDia
         document.querySelector('form').addEventListener('submit', function () {
-            const p = document.querySelector("[name='PrecioPorDia']");
+            var p = document.querySelector("[name='PrecioPorDia']");
             if (p) p.value = p.value.replace(',', '.');
         });
     </script>

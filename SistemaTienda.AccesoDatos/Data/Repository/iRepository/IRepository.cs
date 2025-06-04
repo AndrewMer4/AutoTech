@@ -22,5 +22,6 @@ namespace SistemaTienda.AccesoDatos.Data.Repository.iRepository
         void Add(T entity);
         void Remove(int id);
         void Remove(T entity);
+        bool Exists(Expression<Func<T, bool>> filter);
     }
 }

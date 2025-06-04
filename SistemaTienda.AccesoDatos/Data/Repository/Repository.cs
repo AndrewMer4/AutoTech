@@ -111,5 +111,9 @@ namespace SistemaTienda.AccesoDatos.Data.Repository
         {
             dbSet.Remove(entity);
         }
+        public bool Exists(Expression<Func<T, bool>> filter)
+        {
+            return dbSet.Any(filter);
+        }
     }
 }

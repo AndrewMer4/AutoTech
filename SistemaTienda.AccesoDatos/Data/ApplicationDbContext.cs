@@ -14,5 +14,6 @@ namespace SistemaTienda.Data
         public DbSet<Pago> Pago { get; set; }
         public DbSet<Vehiculo> Vehiculo { get; set; }
         public DbSet<Clientes> Clientes { get; set; }
+       
     }
 }

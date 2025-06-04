@@ -14,11 +14,6 @@ namespace SistemaTienda.AccesoDatos.Data.Repository.iRepository
         IRentaRepository Renta { get; }
 
         IPagoRepository Pago { get; }
-
-
-
-        //IRentaRepository Renta { get; }
-        //IPagoRepository Pago { get; }
         void Save();
     }
 

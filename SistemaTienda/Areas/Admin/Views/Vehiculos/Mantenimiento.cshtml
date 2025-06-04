@@ -1,0 +1,289 @@
+﻿@model SistemaTienda.Models.ViewModels.MantenimientoVM
+
+@{
+    ViewData["Title"] = "Vehículos en Mantenimiento";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Importar Bebas Neue para títulos -->
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+
+<style>
+    /* Fuente para títulos */
+    .font-title {
+        font-family: 'Bebas Neue', sans-serif;
+        letter-spacing: 1px;
+    }
+
+    /* Contenedor general */
+    .container-mant {
+        margin-top: 3rem;
+        margin-bottom: 3rem;
+    }
+
+    /* Card de vehículo */
+    .vehiculo-card .card {
+        border: none;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: transform 0.2s ease-in-out;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    }
+
+        .vehiculo-card .card:hover {
+            transform: translateY(-5px);
+        }
+
+    .vehiculo-card img {
+        height: 180px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+        .vehiculo-card img:hover {
+            transform: scale(1.05);
+        }
+
+    /* Información dentro de la card */
+    .vehiculo-info {
+        font-size: 0.95rem;
+    }
+
+        .vehiculo-info i {
+            color: #6c757d;
+            margin-right: 5px;
+        }
+
+    /* Título del vehículo */
+    .vehiculo-titulo {
+        font-weight: bold;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Botón “Marcar como Disponible” */
+    .btn-marcar {
+        transition: background-color 0.3s ease;
+    }
+
+        .btn-marcar:hover {
+            background-color: #198754;
+            color: #fff;
+        }
+
+    /* Input de búsqueda */
+    #buscarVehiculo {
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    /* Estilo del modal */
+    .modal-confirm .modal-content {
+        border-radius: 16px;
+        padding: 2rem;
+    }
+
+    .modal-confirm .modal-header {
+        border-bottom: none;
+        position: relative;
+        justify-content: center;
+    }
+
+    .modal-confirm .modal-title {
+        font-size: 1.5rem;
+        font-family: 'Bebas Neue', sans-serif;
+    }
+
+    .modal-confirm .modal-body {
+        text-align: center;
+        font-size: 1rem;
+    }
+
+    .modal-confirm .modal-footer {
+        justify-content: center;
+        border-top: none;
+        padding-top: 0;
+    }
+
+    .modal-confirm .btn {
+        min-width: 100px;
+        border-radius: 50px;
+    }
+
+    .modal-confirm .btn-cancel {
+        background-color: #dc3545; /* Rojo borde */
+        color: #fff;
+    }
+
+        .modal-confirm .btn-cancel:hover {
+            background-color: #c82333;
+        }
+
+    .modal-confirm .btn-confirm {
+        background-color: #198754; /* Verde */
+        color: #fff;
+    }
+
+        .modal-confirm .btn-confirm:hover {
+            background-color: #157347;
+        }
+</style>
+
+<div class="container container-mant">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="font-title display-4">Vehículos en Mantenimiento</h1>
+        <a asp-area="Admin"
+           asp-controller="Vehiculos"
+           asp-action="Index"
+           class="btn btn-dark">
+            <i class="fas fa-arrow-left me-1"></i> Volver a Lista
+        </a>
+    </div>
+
+    @if (Model.VehiculosEnMantenimiento.Any())
+    {
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <input type="text"
+                       id="buscarVehiculo"
+                       class="form-control"
+                       placeholder="🔍 Buscar vehículo...">
+            </div>
+        </div>
+
+        <div class="row" id="contenedorVehiculos">
+            @foreach (var vehiculo in Model.VehiculosEnMantenimiento)
+            {
+                <div class="col-lg-4 col-md-6 mb-4 vehiculo-card">
+                    <div class="card h-100">
+                        @if (!string.IsNullOrEmpty(vehiculo.UrlImagen))
+                        {
+                            <img src="@vehiculo.UrlImagen"
+                                 class="card-img-top"
+                                 alt="Imagen del vehículo" />
+                        }
+                        else
+                        {
+                            <div class="bg-light d-flex justify-content-center align-items-center" style="height: 180px;">
+                                <span class="text-muted">Sin imagen</span>
+                            </div>
+                        }
+
+                        <div class="card-body">
+                            <div class="vehiculo-titulo text-primary">
+                                <i class="fas fa-car-side"></i>
+                                @vehiculo.Marca @vehiculo.Modelo
+                            </div>
+                            <div class="vehiculo-info mt-2">
+                                <p>
+                                    <i class="fas fa-id-card"></i>
+                                    <strong>Placa:</strong> @vehiculo.Placa
+                                </p>
+                                <p>
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <strong>Año:</strong> @vehiculo.Anio
+                                </p>
+                                <p>
+                                    <i class="fas fa-tools"></i>
+                                    <strong>Estado:</strong> @vehiculo.Estado
+                                </p>
+                            </div>
+                            <button type="button"
+                                    class="btn btn-outline-success btn-sm btn-marcar mt-2 btn-cambiar-estado"
+                                    data-placa="@vehiculo.Placa">
+                                <i class="fas fa-check-circle me-1"></i>
+                                Marcar como Disponible
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            No hay vehículos en mantenimiento actualmente.
+        </div>
+    }
+</div>
+
+<!-- Modal de confirmación centralizado -->
+<div class="modal fade modal-confirm" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirmar acción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                ¿Está seguro de marcar este vehículo como disponible?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-confirm" id="btnConfirmar">Sí, marcarlo</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Asegúrate de tener referenciados jQuery, Bootstrap y Toastr en el _Layout para que funcionen -->
+    <script>
+        $(document).ready(function () {
+            var placaSeleccionada = null;
+
+            // Filtrar dinámico de tarjetas
+            $("#buscarVehiculo").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $(".vehiculo-card").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
+            });
+
+            // Al hacer click en “Marcar como Disponible”, abrimos el modal
+            $('.btn-cambiar-estado').click(function () {
+                placaSeleccionada = $(this).data('placa');
+                $('#confirmModal').modal('show');
+            });
+
+            // Si presiona “Sí, marcarlo” en el modal
+            $('#btnConfirmar').click(function () {
+                if (!placaSeleccionada) {
+                    toastr.error('No se detectó placa');
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("CambiarADisponible", "Vehiculos", new { area = "Admin" })',
+                    type: 'POST',
+                    data: { placa: placaSeleccionada },
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            // Ocultar la tarjeta de ese vehículo con efecto
+                            $('.vehiculo-card').has('[data-placa="' + placaSeleccionada + '"]')
+                                .fadeOut(400, function () {
+                                    $(this).remove();
+                                });
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function () {
+                        toastr.error('Ocurrió un error al procesar la solicitud');
+                    },
+                    complete: function () {
+                        placaSeleccionada = null;
+                        $('#confirmModal').modal('hide');
+                    }
+                });
+            });
+        });
+    </script>
+}

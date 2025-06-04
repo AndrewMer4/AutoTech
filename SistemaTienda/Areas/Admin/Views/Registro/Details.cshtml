@@ -1,0 +1,90 @@
+﻿@model SistemaTienda.Models.ViewModels.UserVM
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Detalle de Usuario";
+}
+
+@section Styles {
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
+    <style>
+        .page-header {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3rem;
+            letter-spacing: 1px;
+            color: #343a40;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .card-custom {
+            background-color: #fff;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-control[readonly] {
+            background-color: #f8f9fa;
+            pointer-events: none;
+        }
+
+        .btn-group-detail {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-action {
+            border-radius: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+        }
+    </style>
+}
+
+<div class="container py-5">
+    <h1 class="page-header">Perfil de @Model.Nombre @Model.Apellido</h1>
+
+    <div class="card-custom">
+        <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input type="text" class="form-control" value="@Model.Nombre" readonly />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Apellido</label>
+            <input type="text" class="form-control" value="@Model.Apellido" readonly />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Correo</label>
+            <input type="text" class="form-control" value="@Model.Email" readonly />
+        </div>
+        <div class="mb-4">
+            <label class="form-label">Rol</label>
+            <input type="text" class="form-control" value="@Model.Role" readonly />
+        </div>
+
+        <div class="btn-group-detail">
+            <a asp-action="Index" class="btn btn-outline-secondary btn-action">
+                <i class="fas fa-arrow-left me-1"></i> Volver
+            </a>
+            <div>
+                <a asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-success btn-action me-2">
+                    <i class="far fa-edit me-1"></i> Editar
+                </a>
+                <a asp-action="Delete"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-danger btn-action">
+                    <i class="far fa-trash-alt me-1"></i> Eliminar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

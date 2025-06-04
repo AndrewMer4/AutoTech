@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,6 +11,8 @@ using SistemaTienda.Models.ViewModels;
 namespace SistemaTienda.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Route("Admin/[controller]/[action]")]
+    [Authorize(Roles = "Admin")]
     public class RegistroController : Controller
     {
         private readonly UserManager<ApplicationUser> _userMgr;
@@ -28,7 +30,6 @@ namespace SistemaTienda.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult Index() => View();
 
-        // GET /Admin/Registro/GetAll  → para DataTable
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -49,6 +50,65 @@ namespace SistemaTienda.Areas.Admin.Controllers
             }
 
             return Json(new { data });
+        }
+
+
+        // GET /Admin/Registro/Details/{id}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Details(string id)
+        {
+            var user = await _userMgr.FindByIdAsync(id);
+            if (user == null) return NotFound();
+
+            var role = (await _userMgr.GetRolesAsync(user)).FirstOrDefault() ?? "";
+            var vm = new UserVM
+            {
+                Id = user.Id,
+                Nombre = user.Nombre,
+                Apellido = user.Apellido,
+                Email = user.Email,
+                Role = role,
+                IsCreate = false
+            };
+            return View(vm);
+        }
+
+        // GET /Admin/Registro/Delete/{id}  → muestra confirmación
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Delete(string id)
+        {
+            var user = await _userMgr.FindByIdAsync(id);
+            if (user == null) return NotFound();
+
+            var role = (await _userMgr.GetRolesAsync(user)).FirstOrDefault() ?? "";
+            var vm = new UserVM
+            {
+                Id = user.Id,
+                Nombre = user.Nombre,
+                Apellido = user.Apellido,
+                Email = user.Email,
+                Role = role,
+                IsCreate = false
+            };
+            return View(vm);
+        }
+
+        // POST /Admin/Registro/DeleteConfirmed  → ejecuta el borrado
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(string id)
+        {
+            var user = await _userMgr.FindByIdAsync(id);
+            if (user == null) return NotFound();
+
+            var result = await _userMgr.DeleteAsync(user);
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError("", "No se pudo eliminar el usuario.");
+                // volver a mostrar la misma vista Delete con un VM mínimo
+                return View("Delete", new UserVM { Id = id });
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET /Admin/Registro/Register
@@ -96,7 +156,7 @@ namespace SistemaTienda.Areas.Admin.Controllers
             }
 
             foreach (var e in result.Errors)
-                ModelState.AddModelError(string.Empty, e.Description);
+                ModelState.AddModelError("", e.Description);
 
             var allRoles = await _roleMgr.Roles
                 .Select(r => new { Value = r.Name, Text = r.Name })
@@ -174,20 +234,5 @@ namespace SistemaTienda.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // DELETE /Admin/Registro/Delete/{id}
-        [HttpDelete]
-        public async Task<IActionResult> Delete(string id)
-        {
-            var user = await _userMgr.FindByIdAsync(id);
-            if (user == null)
-                return Json(new { success = false, message = "Usuario no encontrado." });
-
-            var result = await _userMgr.DeleteAsync(user);
-            return Json(new
-            {
-                success = result.Succeeded,
-                message = result.Succeeded ? "Usuario eliminado." : "Error al eliminar."
-            });
-        }
     }
 }

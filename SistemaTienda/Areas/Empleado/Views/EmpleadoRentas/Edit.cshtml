@@ -2,14 +2,19 @@
 
 @{
     ViewData["Title"] = "Editar Renta";
-    var hoy = DateTime.Now.ToString("yyyy-MM-dd");
     var manana = DateTime.Now.AddDays(1).ToString("yyyy-MM-dd");
+    var initClienteText = Model.ClienteSearch;
+    var initVehiculoText = Model.VehiculoSearch;
 }
 
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 <style>
     .font-title {
-        font-family: 'Bebas Neue',sans-serif;
+        font-family: 'Bebas Neue', sans-serif;
         letter-spacing: 1px;
     }
 
@@ -17,9 +22,8 @@
         background: #f9f9f9;
         border-radius: 1rem;
         padding: 2rem;
-        max-width: 750px;
-        margin: auto;
         box-shadow: 0 0 15px rgba(0,0,0,0.07);
+        height: 100%;
     }
 
     .form-label {
@@ -27,77 +31,189 @@
         color: #333;
     }
 
-    .form-control {
-        border-radius: 0.5rem;
+    .form-control, .select2-container--default .select2-selection--single {
+        border-radius: .5rem !important;
+        height: 38px;
+        border: 1px solid #ced4da !important;
+    }
+
+    .input-group-text {
+        background: #e9ecef;
     }
 
     .btn-dark {
         font-weight: 500;
         padding: 10px 25px;
+        background: #343a40;
+        border: none;
     }
+
+        .btn-dark:hover {
+            background: #23272b;
+        }
+
+    .vehicle-sidebar {
+        position: sticky;
+        top: 1rem;
+        height: calc(100vh - 2rem);
+        overflow-y: auto;
+        padding: 1rem;
+        background: #fff;
+        border-left: 1px solid #e0e0e0;
+    }
+
+    .vehicle-card {
+        border-bottom: 1px solid #ddd;
+        padding-bottom: .5rem;
+        margin-bottom: .5rem;
+    }
+
+        .vehicle-card img {
+            width: 100%;
+            object-fit: cover;
+            border-radius: .5rem;
+        }
 </style>
 
-<div class="container mt-5">
-    <h1 class="text-center display-4 font-title mb-4">Editar Renta</h1>
+<div class="container-fluid mt-5">
+    <div class="row">
+        <!-- FORMULARIO -->
+        <div class="col-lg-9">
+            <div class="form-container">
+                <h1 class="text-center display-4 font-title mb-4">Editar Renta</h1>
 
-    <form method="post" asp-area="Admin" asp-controller="Rentas" asp-action="Edit">
-        <input type="hidden" asp-for="Renta.Id" />
+                <form asp-area="Empleado"
+                      asp-controller="EmpleadoRentas"
+                      asp-action="Edit"
+                      method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Renta.Id" />
 
-        <div class="form-container">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            <div class="mb-3">
-                <label asp-for="Renta.ClienteId" class="form-label"></label>
-                @Html.DropDownListFor(m => m.Renta.ClienteId, Model.ListaClientes, "Seleccione un cliente", new { @class = "form-control" })
-                <span asp-validation-for="Renta.ClienteId" class="text-danger"></span>
-            </div>
+                    <!-- Cliente -->
+                    <div class="mb-3">
+                        <label asp-for="Renta.ClienteId" class="form-label">Cliente</label>
+                        <select asp-for="Renta.ClienteId"
+                                class="form-control js-select2-client"
+                                data-url="@Url.Action("GetClientes","EmpleadoRentas", new { area="Empleado" })"
+                                data-init-id="@Model.Renta.ClienteId"
+                                data-init-text="@initClienteText"
+                                data-placeholder="Escriba para buscar cliente…">
+                            <option></option>
+                        </select>
+                        <span asp-validation-for="Renta.ClienteId" class="text-danger"></span>
+                    </div>
 
-            <div class="mb-3">
-                <label asp-for="Renta.VehiculoId" class="form-label">Vehículo</label>
-                @Html.DropDownListFor(m => m.Renta.VehiculoId, Model.ListaVehiculos, "Seleccione un vehículo", new { @class = "form-control" })
-                <span asp-validation-for="Renta.VehiculoId" class="text-danger"></span>
-            </div>
+                    <!-- Vehículo -->
+                    <div class="mb-3">
+                        <label asp-for="Renta.VehiculoId" class="form-label">Vehículo</label>
+                        <select asp-for="Renta.VehiculoId"
+                                class="form-control js-select2-vehiculo"
+                                data-url="@Url.Action("GetVehiculos","EmpleadoRentas", new { area="Empleado" })"
+                                data-init-id="@Model.Renta.VehiculoId"
+                                data-init-text="@initVehiculoText"
+                                data-placeholder="Escriba para buscar vehículo…">
+                            <option></option>
+                        </select>
+                        <span asp-validation-for="Renta.VehiculoId" class="text-danger"></span>
+                    </div>
 
-            <div class="mb-3">
-                <label asp-for="Renta.FechaInicio" class="form-label"></label>
-                <input asp-for="Renta.FechaInicio"
-                       type="date"
-                       class="form-control"
-                       min="@hoy"
-                       value="@Model.Renta.FechaInicio.ToString("yyyy-MM-dd")"
-                       readonly />
-                <span asp-validation-for="Renta.FechaInicio" class="text-danger"></span>
-            </div>
+                    <!-- Fechas -->
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label asp-for="Renta.FechaInicio" class="form-label">Fecha Inicio</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                <input asp-for="Renta.FechaInicio"
+                                       type="date"
+                                       class="form-control"
+                                       readonly />
+                            </div>
+                            <span asp-validation-for="Renta.FechaInicio" class="text-danger"></span>
+                        </div>
+                        <div class="col">
+                            <label asp-for="Renta.FechaFin" class="form-label">Fecha Fin</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                <input asp-for="Renta.FechaFin"
+                                       type="date"
+                                       class="form-control"
+                                       min="@manana" />
+                            </div>
+                            <span asp-validation-for="Renta.FechaFin" class="text-danger"></span>
+                        </div>
+                    </div>
 
-            <div class="mb-3">
-                <label asp-for="Renta.FechaInicio" class="form-label"></label>
-                <input asp-for="Renta.FechaInicio"
-                       type="date"
-                       class="form-control"
-                       value="@Model.Renta.FechaInicio.ToString("yyyy-MM-dd")"
-                       readonly />
-                <span asp-validation-for="Renta.FechaInicio" class="text-danger"></span>
-            </div>
+                    <!-- Total -->
+                    <div class="mb-4">
+                        <label asp-for="Renta.Total" class="form-label">Total Estimado</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input asp-for="Renta.Total" class="form-control" readonly />
+                        </div>
+                    </div>
 
-
-            <div class="mb-4">
-                <label asp-for="Renta.Total" class="form-label"></label>
-                <input asp-for="Renta.Total" class="form-control" readonly />
-            </div>
-
-            <div class="d-flex justify-content-between">
-                <a asp-area="Admin" asp-controller="Rentas" asp-action="Index" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-1"></i> Volver
-                </a>
-                <button type="submit" class="btn btn-dark">
-                    <i class="fas fa-save me-2"></i> Guardar Cambios
-                </button>
+                    <!-- Botones -->
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Volver
+                        </a>
+                        <button type="submit" class="btn btn-dark">
+                            <i class="fas fa-save me-2"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-    </form>
+        <!-- SIDEBAR VEHÍCULOS -->
+        <div class="col-lg-3">
+            <aside class="vehicle-sidebar">
+                <h5 class="mb-3">Vehículos Disponibles</h5>
+                @foreach (var v in Model.VehiculosDisponibles)
+                {
+                    <div class="vehicle-card">
+                        <img src="@v.UrlImagen" alt="@v.Placa" />
+                        <div><strong>Placa:</strong> @v.Placa</div>
+                        <div><strong>Marca/Modelo:</strong> @v.Marca @v.Modelo</div>
+                        <div><strong>Precio/día:</strong> $@v.PrecioPorDia</div>
+                    </div>
+                }
+            </aside>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script src="~/js/Empleado/renta.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(function () {
+            function initSelect2(selector) {
+                var $el = $(selector);
+                $el.select2({
+                    placeholder: $el.data('placeholder'),
+                    allowClear: true,
+                    ajax: {
+                        url: $el.data('url'),
+                        dataType: 'json',
+                        delay: 250,
+                        data: params => ({ term: params.term }),
+                        processResults: data => ({ results: data.results })
+                    },
+                    minimumInputLength: 1,
+                    width: '100%'
+                });
+
+                // Preselección
+                var id = $el.data('init-id'), text = $el.data('init-text');
+                if (id && text) {
+                    var option = new Option(text, id, true, true);
+                    $el.append(option).trigger('change');
+                }
+            }
+            initSelect2('.js-select2-client');
+            initSelect2('.js-select2-vehiculo');
+        });
+    </script>
 }

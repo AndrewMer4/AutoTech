@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+	 <PackageReference Include="ClosedXML" Version="0.105.0" />
 	 <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11" />
 	 <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.11" />
 	 <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.11">
@@ -24,6 +25,13 @@
   <ItemGroup>
     <Folder Include="Areas\Identity\Data\" />
     <Folder Include="wwwroot\imagenes\productos\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Areas\Admin\Views\Registro\Delete.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

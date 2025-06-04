@@ -1,3 +1,4 @@
+// Program.cs
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -17,19 +18,20 @@ CultureInfo.DefaultThreadCurrentUICulture = culturaPersonalizada;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// 1) Configuración de DbContext
 var connectionString = builder.Configuration.GetConnectionString("ConexionSQL")
     ?? throw new InvalidOperationException("Connection string 'ConexionSQL' not found.");
-
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+// 2) Configuración de Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
 })
-.AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultTokenProviders()
-.AddDefaultUI();
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultUI()
+    .AddDefaultTokenProviders();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -37,29 +39,30 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
 });
 
+// 3) Inyección de dependencias y MVC
 builder.Services.AddScoped<IContenedorTrabajo, ContenedorTrabajo>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddSession();
 
+// 4) Desarrollo: excepciones EF y DataProtection efímero
 if (builder.Environment.IsDevelopment())
 {
+    builder.Services.AddDatabaseDeveloperPageExceptionFilter();
     builder.Services.AddDataProtection()
            .UseEphemeralDataProtectionProvider();
 }
 
 var app = builder.Build();
 
+// 5) Crear roles Admin y Empleado al iniciar
 await CrearRolesIniciales(app.Services);
 
+// 6) Pipeline de HTTP
 if (app.Environment.IsDevelopment())
-{
-    app.UseMigrationsEndPoint();
-}
+    app.UseDeveloperExceptionPage();
 else
-{
     app.UseExceptionHandler("/Home/Error");
-}
 
 app.UseStaticFiles();
 app.UseRouting();
@@ -69,11 +72,12 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "areas",
-    pattern: "{area=Identity}/{controller=Account}/{action=Login}/{id?}");
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Redirect}/{action=ToAdmin}/{id?}");
+
 
 app.MapControllerRoute(
     name: "empleado",
@@ -82,7 +86,7 @@ app.MapControllerRoute(
 app.MapRazorPages();
 app.Run();
 
-async Task CrearRolesIniciales(IServiceProvider serviceProvider)
+static async Task CrearRolesIniciales(IServiceProvider serviceProvider)
 {
     using var scope = serviceProvider.CreateScope();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -90,8 +94,6 @@ async Task CrearRolesIniciales(IServiceProvider serviceProvider)
     foreach (var rol in roles)
     {
         if (!await roleManager.RoleExistsAsync(rol))
-        {
             await roleManager.CreateAsync(new IdentityRole(rol));
-        }
     }
 }

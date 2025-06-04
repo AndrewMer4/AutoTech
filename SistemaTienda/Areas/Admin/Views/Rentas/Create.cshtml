@@ -1,214 +1,192 @@
 ﻿@model SistemaTienda.Models.ViewModels.RentaVM
 
 @{
-    ViewData["Title"] = "Registrar Renta";
-    var hoy = DateTime.Now.ToString("yyyy-MM-dd");
-    var manana = DateTime.Now.AddDays(1).ToString("yyyy-MM-dd");
+    ViewData["Title"] = "Crear Renta";
+    var hoy = DateTime.Today.ToString("yyyy-MM-dd");
+    var manana = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd");
 }
 
-<!-- Fuentes y estilos -->
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<!-- Bebas Neue + FontAwesome + Select2 CSS -->
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+      rel="stylesheet" />
 
 <style>
-    :root {
-        --primary-color: #2c3e50;
-        --secondary-color: #34495e;
-        --accent-color: #3498db;
-        --light-gray: #f8f9fa;
-        --dark-gray: #343a40;
-    }
-    
-    body {
-        font-family: 'Montserrat', sans-serif;
-        background-color: #f5f7fa;
-    }
-    
     .font-title {
-        font-family: 'Bebas Neue', cursive;
-        letter-spacing: 2px;
-        color: var(--primary-color);
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        font-family: 'Bebas Neue', sans-serif;
+        letter-spacing: 1px;
     }
-    
+
     .form-container {
-        background: white;
-        border-radius: 12px;
-        padding: 2.5rem;
-        max-width: 850px;
-        margin: 2rem auto;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        border: 1px solid rgba(0,0,0,0.05);
+        background-color: #f9f9f9;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.07);
     }
-    
+
     .form-label {
         font-weight: 600;
-        color: var(--secondary-color);
-        margin-bottom: 0.5rem;
-        font-size: 0.95rem;
+        color: #333;
     }
-    
-    .form-control, .select2-container--default .select2-selection--single {
-        border-radius: 8px !important;
-        height: 42px;
-        border: 1px solid #e0e0e0 !important;
-        transition: all 0.3s ease;
+
+    .form-control,
+    .select2-container--default .select2-selection--single {
+        border-radius: 0.5rem !important;
+        height: 38px;
     }
-    
-    .form-control:focus, .select2-container--default.select2-container--focus .select2-selection--single {
-        border-color: var(--accent-color) !important;
-        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+
+    .select2-container--default .select2-selection--single {
+        border: 1px solid #ced4da !important;
     }
-    
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 40px;
-    }
-    
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 40px;
-    }
-    
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+        }
+
     .btn-dark {
-        font-weight: 600;
-        padding: 10px 28px;
-        background-color: var(--primary-color);
-        border: none;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        letter-spacing: 0.5px;
+        font-weight: 500;
+        padding: 10px 25px;
+        background-color: #343a40;
+        border-color: #343a40;
     }
-    
-    .btn-dark:hover {
-        background-color: var(--secondary-color);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+
+        .btn-dark:hover {
+            background-color: #23272b;
+            border-color: #1d2124;
+        }
+
+    .sidebar {
+        background: #fff;
+        border-radius: 1rem;
+        padding: 1rem;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.07);
+        max-height: calc(100vh - 4rem);
+        overflow-y: auto;
     }
-    
-    .btn-secondary {
-        border-radius: 8px;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-secondary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    
-    .input-group-text {
-        background-color: var(--light-gray);
-        border-radius: 8px 0 0 8px !important;
-        border: 1px solid #e0e0e0;
-    }
-    
-    .date-fields {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-    
-    .total-field {
-        background-color: var(--light-gray);
-        border-radius: 8px;
-        padding: 0.5rem;
-    }
-    
-    .fa-car {
-        color: var(--accent-color);
-    }
-    
-    .text-danger {
-        font-size: 0.85rem;
-    }
-    
-    .form-section {
+
+    .vehicle-card {
+        text-align: center;
         margin-bottom: 1.5rem;
     }
-    
-    .form-section-title {
-        font-weight: 600;
-        color: var(--primary-color);
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid var(--light-gray);
-    }
+
+        .vehicle-card img {
+            max-height: 120px;
+            object-fit: cover;
+            margin-bottom: .5rem;
+            border-radius: .5rem;
+        }
 </style>
 
-<div class="container py-4">
-    <h1 class="text-center display-4 font-title mb-4">REGISTRAR NUEVA RENTA</h1>
+<div class="container-fluid py-4">
+    <div class="row gx-4">
+        <!-- IZQUIERDA: FORMULARIO -->
+        <div class="col-lg-8">
+            <div class="form-container">
+                <h1 class="text-center display-4 font-title mb-4">Crear Renta</h1>
 
-    <form method="post" asp-area="Admin" asp-controller="Rentas" asp-action="Create">
-        <div class="form-container">
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
+                <form asp-area="Admin"
+                      asp-controller="Rentas"
+                      asp-action="Create"
+                      method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            <!-- Sección Cliente y Vehículo -->
-            <div class="form-section">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Renta.ClienteId" class="form-label"><i class="fas fa-user me-2"></i>CLIENTE</label>
-                        <select asp-for="Renta.ClienteId" class="form-control js-select2-client">
-                            <option value="">Buscar cliente...</option>
+                    <!-- Cliente -->
+                    <div class="mb-3">
+                        <label asp-for="Renta.ClienteId" class="form-label">Cliente</label>
+                        <select asp-for="Renta.ClienteId"
+                                class="form-control js-select2"
+                                data-url="@Url.Action("GetClientes","Rentas", new { area="Admin" })">
+                            <option></option>
                         </select>
                         <span asp-validation-for="Renta.ClienteId" class="text-danger"></span>
                     </div>
-                    
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Renta.VehiculoId" class="form-label"><i class="fas fa-car me-2"></i>VEHÍCULO</label>
-                        <select asp-for="Renta.VehiculoId" class="form-control js-select2-vehiculo">
-                            <option value="">Buscar vehículo...</option>
+
+                    <!-- Vehículo -->
+                    <div class="mb-3">
+                        <label asp-for="Renta.VehiculoId" class="form-label">Vehículo</label>
+                        <select asp-for="Renta.VehiculoId"
+                                class="form-control js-select2"
+                                data-url="@Url.Action("GetVehiculos","Rentas", new { area="Admin" })">
+                            <option></option>
                         </select>
                         <span asp-validation-for="Renta.VehiculoId" class="text-danger"></span>
                     </div>
-                </div>
-            </div>
 
-            <!-- Sección Fechas -->
-            <div class="form-section">
-                <h5 class="form-section-title"><i class="far fa-calendar-alt me-2"></i>FECHAS DE RENTA</h5>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Renta.FechaInicio" class="form-label">FECHA INICIO</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="far fa-calendar"></i></span>
-                            <input asp-for="Renta.FechaInicio" type="date" class="form-control" min="@hoy" value="@hoy" readonly />
+                    <!-- Fechas lado a lado -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label asp-for="Renta.FechaInicio" class="form-label">Fecha Inicio</label>
+                            <input asp-for="Renta.FechaInicio"
+                                   type="date"
+                                   class="form-control"
+                                   min="@hoy"
+                                   value="@hoy"
+                                   readonly />
+                            <span asp-validation-for="Renta.FechaInicio" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Renta.FechaFin" class="form-label">Fecha Fin</label>
+                            <input asp-for="Renta.FechaFin"
+                                   type="date"
+                                   class="form-control"
+                                   min="@manana"
+                                   value="@manana" />
+                            <span asp-validation-for="Renta.FechaFin" class="text-danger"></span>
                         </div>
                     </div>
-                    
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Renta.FechaFin" class="form-label">FECHA FIN</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="far fa-calendar"></i></span>
-                            <input asp-for="Renta.FechaFin" type="date" class="form-control" min="@manana" value="@manana" />
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Sección Total -->
-            <div class="form-section">
-                <h5 class="form-section-title"><i class="fas fa-dollar-sign me-2"></i>DETALLES DE PAGO</h5>
-                <div class="row">
-                    <div class="col-md-6">
-                        <label asp-for="Renta.Total" class="form-label">TOTAL ESTIMADO</label>
+                    <!-- Total Estimado -->
+                    <div class="mb-4">
+                        <label asp-for="Renta.Total" class="form-label">Total Estimado</label>
                         <div class="input-group">
                             <span class="input-group-text">$</span>
-                            <input asp-for="Renta.Total" class="form-control" readonly style="font-weight: 600; font-size: 1.1rem;" />
+                            <input asp-for="Renta.Total" class="form-control" readonly />
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Botones -->
-            <div class="d-flex justify-content-between mt-4 pt-3 border-top">
-                <a asp-area="Admin" asp-controller="Rentas" asp-action="Index" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-2"></i> VOLVER AL LISTADO
-                </a>
-                <button type="submit" class="btn btn-dark">
-                    <i class="fas fa-check-circle me-2"></i> REGISTRAR RENTA
-                </button>
+                    <!-- Botones -->
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-dark">
+                            <i class="fas fa-plus me-2"></i> Crear Renta
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-    </form>
+
+        <!-- DERECHA: SIDEBAR VEHÍCULOS DISPONIBLES -->
+        <div class="col-lg-4">
+            <aside class="sidebar">
+                <h5 class="font-title mb-4">Vehículos Disponibles</h5>
+                @if (!Model.VehiculosDisponibles.Any())
+                {
+                    <p>No hay vehículos disponibles.</p>
+                }
+                else
+                {
+                    @foreach (var v in Model.VehiculosDisponibles)
+                    {
+                        <div class="vehicle-card">
+                            <img src="@v.UrlImagen"
+                                 alt="@v.Placa"
+                                 class="img-fluid" />
+                            <div><strong>@v.Placa</strong></div>
+                            <div>@v.Marca @v.Modelo</div>
+                            <div class="fw-bold">
+                                $@v.PrecioPorDia.ToString("F2") <small>/ día</small>
+                            </div>
+                        </div>
+                    }
+                }
+            </aside>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -216,33 +194,19 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(function() {
-          $('.js-select2-client').select2({
-            placeholder: "Escriba para buscar cliente…",
-            allowClear: true,
-            ajax: {
-              url: '@Url.Action("GetClientes", "Rentas", new { area = "Admin" })',
-              dataType: 'json',
-              delay: 250,
-              data: params => ({ term: params.term }),
-              processResults: data => data
-            },
-            minimumInputLength: 1,
-            width: '100%'
-          });
-
-          $('.js-select2-vehiculo').select2({
-            placeholder: "Escriba para buscar vehículo…",
-            allowClear: true,
-            ajax: {
-              url: '@Url.Action("GetVehiculos", "Rentas", new { area = "Admin" })',
-              dataType: 'json',
-              delay: 250,
-              data: params => ({ term: params.term }),
-              processResults: data => data
-            },
-            minimumInputLength: 1,
-            width: '100%'
-          });
+            $('.js-select2').select2({
+                placeholder: 'Escribe para buscar…',
+                allowClear: true,
+                ajax: {
+                    url: function() { return $(this).data('url'); },
+                    dataType: 'json',
+                    delay: 250,
+                    data: params => ({ term: params.term }),
+                    processResults: resp => ({ results: resp.results })
+                },
+                minimumInputLength: 1,
+                width: '100%'
+            });
         });
     </script>
 }

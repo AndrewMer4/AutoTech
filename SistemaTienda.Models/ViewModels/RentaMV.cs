@@ -16,5 +16,6 @@ namespace SistemaTienda.Models.ViewModels
 
         [NotMapped]
         public string VehiculoSearch { get; set; } = "";
+        public IEnumerable<Vehiculo> VehiculosDisponibles { get; set; } = Enumerable.Empty<Vehiculo>();
     }
 }

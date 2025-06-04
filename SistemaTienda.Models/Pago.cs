@@ -24,10 +24,9 @@ namespace SistemaTienda.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal Monto { get; set; } // Se llenará desde Renta.Total automáticamente
 
-        [Required]
         [Display(Name = "Fecha de Pago")]
         [DataType(DataType.Date)]
-        public DateTime FechaPago { get; set; } = DateTime.Now;
+        public DateTime? FechaPago { get; set; }
 
         [Display(Name = "Estado")]
         public string Estado { get; set; } = "Pendiente"; // Default: Pendiente

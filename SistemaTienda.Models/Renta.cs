@@ -19,7 +19,7 @@ namespace SistemaTienda.Models
 
         [Required]
         [Display(Name = "Vehículo (Matrícula)")]
-        public string VehiculoId { get; set; } = null!;   // ahora string
+        public string VehiculoId { get; set; } = null!;  
 
         [ForeignKey("VehiculoId")]
         public Vehiculo? Vehiculo { get; set; }
@@ -40,6 +40,7 @@ namespace SistemaTienda.Models
         [NotMapped]
         [Display(Name = "Precio por Día")]
         public decimal PrecioPorDia => Vehiculo?.PrecioPorDia ?? 0m;
+
     }
 }
 

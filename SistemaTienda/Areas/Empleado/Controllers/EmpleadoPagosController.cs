@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
+﻿// Areas/Empleado/Controllers/EmpleadoPagosController.cs
+using System;
+using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -8,8 +10,6 @@ using SistemaTienda.Data;
 using SistemaTienda.Models;
 using SistemaTienda.Models.ViewModels;
 using SistemaTienda.Utilidades;
-using System;
-using System.Linq;
 
 namespace SistemaTienda.Areas.Empleado.Controllers
 {
@@ -20,159 +20,311 @@ namespace SistemaTienda.Areas.Empleado.Controllers
         private readonly IContenedorTrabajo _contenedor;
         private readonly ApplicationDbContext _context;
 
-        public EmpleadoPagosController(
-            IContenedorTrabajo contenedor,
-            ApplicationDbContext context)
+        public EmpleadoPagosController(IContenedorTrabajo contenedor, ApplicationDbContext context)
         {
-            _contenedor = contenedor;
-            _context = context;
+            _contenedor = contenedor ?? throw new ArgumentNullException(nameof(contenedor));
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        // GET: /Empleado/EmpleadoPagos
+        // ---------- INDEX & DATATABLE  ----------
         [HttpGet]
-        public IActionResult Index() => View();
-
-        // GET: /Empleado/EmpleadoPagos/GetAll
-        [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult Index()
         {
-            var data = _context.Pago
-                .Include(p => p.Renta).ThenInclude(r => r.Cliente)
-                .Include(p => p.Renta).ThenInclude(r => r.Vehiculo)
-                .Select(p => new {
-                    id = p.Id,
-                    cliente = p.Renta.Cliente.Nombres + " " + p.Renta.Cliente.Apellidos,
-                    vehiculo = p.Renta.Vehiculo.Marca + " " + p.Renta.Vehiculo.Modelo,
-                    monto = p.Monto,
-                    fechapago = p.FechaPago.ToString("yyyy-MM-dd HH:mm"),
-                    estado = p.Estado
-                });
-            return Json(new { data });
-        }
+            // Reutilizamos la lógica de Admin para mostrar sidebar de vehículos rentados
+            var vehiculosRentados = _context.Vehiculo
+                .Where(v => v.Estado == "Rentado")
+                .AsNoTracking()
+                .ToList();
 
-        // GET: /Empleado/EmpleadoPagos/Create
-        [HttpGet]
-        public IActionResult Create()
-        {
-            var vm = new PagoVM
+            var vm = new PagosIndexVM
             {
-                Pago = new Pago(),
-                ListaRentas = _context.Renta
-                    .Include(r => r.Cliente)
-                    .Include(r => r.Vehiculo)
-                    .Select(r => new SelectListItem
-                    {
-                        Text = $"{r.Cliente.Nombres} {r.Cliente.Apellidos} — {r.Vehiculo.Marca} {r.Vehiculo.Modelo}",
-                        Value = r.Id.ToString()
-                    })
+                VehiculosRentados = vehiculosRentados
             };
+
             return View(vm);
         }
 
-        // POST: /Empleado/EmpleadoPagos/Create
+        // GET /Empleado/EmpleadoPagos/GetAll  → para DataTable (trae rentaId y pagoId)
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            // 1) Cargamos todas las Rentas con Cliente y Vehículo
+            var rentas = _context.Renta
+                .Include(r => r.Cliente)
+                .Include(r => r.Vehiculo)
+                .AsNoTracking()
+                .ToList();
+
+            // 2) Cargamos todos los Pagos
+            var pagos = _context.Pago
+                .AsNoTracking()
+                .ToList();
+
+            // 3) Proyectamos el resultado exactamente igual que en Admin
+            var resultado = rentas.Select(r =>
+            {
+                var pago = pagos.FirstOrDefault(p => p.RentaId == r.Id);
+
+                return new
+                {
+                    id = pago?.Id ?? 0,                                  // pagoId (0 si aún no existe)
+                    rentaId = r.Id,                                      // ID de la renta asociada
+                    clienteNombre = $"{r.Cliente.Nombres} {r.Cliente.Apellidos}",
+                    vehiculoInfo = $"{r.Vehiculo.Marca} {r.Vehiculo.Modelo} (Placa: {r.Vehiculo.Placa})",
+                    fechaInicio = r.FechaInicio.ToString("yyyy-MM-dd"),
+                    fechaFin = r.FechaFin.ToString("yyyy-MM-dd"),
+                    total = r.Total,
+                    estado = pago?.Estado ?? "Pendiente",                // “Pendiente” si no hay pago
+                    tienePago = pago != null,
+                    pagoId = pago?.Id ?? 0
+                };
+            }).ToList();
+
+            return Json(new { data = resultado });
+        }
+
+        // POST /Empleado/EmpleadoPagos/Create  ← (en Admin se usaba raramente; lo dejamos igual)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(PagoVM pagoVM)
+        public IActionResult Create(Renta renta)
         {
             if (!ModelState.IsValid)
+                return View(renta);
+
+            _context.Renta.Add(renta);
+            _context.SaveChanges();
+
+            var pago = new Pago
             {
-                pagoVM.ListaRentas = _context.Renta
-                    .Include(r => r.Cliente)
-                    .Include(r => r.Vehiculo)
-                    .Select(r => new SelectListItem
-                    {
-                        Text = $"{r.Cliente.Nombres} {r.Cliente.Apellidos} — {r.Vehiculo.Marca} {r.Vehiculo.Modelo}",
-                        Value = r.Id.ToString()
-                    });
-                return View(pagoVM);
-            }
+                RentaId = renta.Id,
+                Monto = renta.Total,
+                Estado = "Pendiente",
+                FechaPago = null
+            };
+            _context.Pago.Add(pago);
+            _context.SaveChanges();
 
-            var renta = _contenedor.Renta.Get(pagoVM.Pago.RentaId);
-            if (renta == null)
-            {
-                ModelState.AddModelError("", "Renta no válida.");
-                return View(pagoVM);
-            }
-
-            pagoVM.Pago.Monto = renta.Total;
-            pagoVM.Pago.FechaPago = DateTime.Now;
-            pagoVM.Pago.Estado = "Pendiente";
-
-            _contenedor.Pago.Add(pagoVM.Pago);
-            _contenedor.Save();
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: /Empleado/EmpleadoPagos/Edit/5
+        // POST /Empleado/EmpleadoPagos/CompletarPago?pagoId=XXX&rentaId=YYY
+        [HttpPost]
+        public IActionResult CompletarPago(int pagoId, int rentaId = 0)
+        {
+            // 1) Intentar recuperar el Pago existente
+            var pago = _context.Pago.Find(pagoId);
+
+            if (pago == null)
+            {
+                // Si no existe, creamos uno nuevo (la renta ya está en BD)
+                if (rentaId > 0)
+                {
+                    var renta = _context.Renta.Find(rentaId);
+                    if (renta == null)
+                        return Json(new { success = false, message = "Renta no encontrada." });
+
+                    pago = new Pago
+                    {
+                        RentaId = renta.Id,
+                        Monto = renta.Total,
+                        Estado = "Pendiente",
+                        FechaPago = null
+                    };
+                    _context.Pago.Add(pago);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Pago no encontrado." });
+                }
+            }
+
+            pago.Estado = "Confirmado";
+            pago.FechaPago = DateTime.Now;
+            _context.Pago.Update(pago);
+            _context.SaveChanges();
+
+            return Json(new { success = true, message = "Pago confirmado correctamente" });
+        }
+
+        // GET /Empleado/EmpleadoPagos/Graficas
+        [HttpGet]
+        public IActionResult Graficas()
+        {
+            // 1. Calcular ganancias totales de pagos completados
+            var gananciasTotales = _context.Pago
+                .Where(p => p.Estado == "Confirmado")
+                .Sum(p => p.Monto);
+
+            // 2. Obtener datos para gráfica de pastel (top 5 vehículos más rentados)
+            var vehiculosRentados = _context.Renta
+                .Include(r => r.Vehiculo)
+                .GroupBy(r => r.Vehiculo)
+                .Select(g => new
+                {
+                    VehiculoInfo = $"{g.Key.Marca} {g.Key.Modelo}",
+                    Placa = g.Key.Placa,
+                    CantidadRentas = g.Count(),
+                    Porcentaje = 0m
+                })
+                .OrderByDescending(x => x.CantidadRentas)
+                .Take(5)
+                .ToList();
+
+            var totalRentas = vehiculosRentados.Sum(x => x.CantidadRentas);
+
+            var vehiculosConPorcentaje = vehiculosRentados
+                .Select(v => new
+                {
+                    v.VehiculoInfo,
+                    v.Placa,
+                    v.CantidadRentas,
+                    Porcentaje = totalRentas > 0
+                                 ? Math.Round((v.CantidadRentas * 100m) / totalRentas, 1)
+                                 : 0
+                })
+                .ToList();
+
+            var model = new GraficasVM
+            {
+                GananciasTotales = gananciasTotales,
+                VehiculoMasRentado = vehiculosConPorcentaje.FirstOrDefault()?.VehiculoInfo ?? "No hay datos",
+                CantidadRentasVehiculo = vehiculosConPorcentaje.FirstOrDefault()?.CantidadRentas ?? 0,
+                DistribucionVehiculos = vehiculosConPorcentaje
+            };
+
+            return View(model);
+        }
+
+        // GET /Empleado/EmpleadoPagos/GetRentas?term=…  → para Select2 en “Renta”
+        [HttpGet]
+        public IActionResult GetRentas(string term)
+        {
+            // IDs de rentas ya pagadas
+            var rentasConPagoIds = _contenedor.Pago
+                .GetAll().Select(p => p.RentaId);
+
+            // Solo rentas sin pago
+            var query = _contenedor.Renta
+                .GetAll(includeProperties: "Cliente,Vehiculo")
+                .Where(r => !rentasConPagoIds.Contains(r.Id));
+
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                term = term.Trim();
+                query = query.Where(r =>
+                    (r.Vehiculo.Placa?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (r.Vehiculo.Marca?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (r.Vehiculo.Modelo?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (r.Cliente.Nombres?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (r.Cliente.Apellidos?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false)
+                );
+            }
+
+            var items = query
+                .Select(r => new
+                {
+                    id = r.Id,
+                    text = $"{r.Vehiculo.Placa} – {r.Vehiculo.Marca} {r.Vehiculo.Modelo} / " +
+                           $"{r.Cliente.Nombres} {r.Cliente.Apellidos}"
+                })
+                .ToList();
+
+            return Json(new { results = items });
+        }
+
+        // ----------  EDIT  ----------
         [HttpGet]
         public IActionResult Edit(int id)
         {
-            var pago = _contenedor.Pago.Get(id);
-            if (pago == null) return NotFound();
+            var pago = _context.Pago.Find(id);
+            if (pago == null)
+                return NotFound();
 
             var vm = new PagoVM
             {
                 Pago = pago,
-                ListaRentas = _context.Renta
-                    .Include(r => r.Cliente)
-                    .Include(r => r.Vehiculo)
-                    .Select(r => new SelectListItem
-                    {
-                        Text = $"{r.Cliente.Nombres} {r.Cliente.Apellidos} — {r.Vehiculo.Marca} {r.Vehiculo.Modelo}",
-                        Value = r.Id.ToString(),
-                        Selected = r.Id == pago.RentaId
-                    })
+                ListaRentas = ObtenerListaDeRentas()
             };
+
             return View(vm);
         }
 
-        // POST: /Empleado/EmpleadoPagos/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(PagoVM pagoVM)
+        public IActionResult Edit(int id, PagoVM vm)
         {
-            if (!ModelState.IsValid)
+            if (id != vm.Pago.Id)
+                return NotFound();
+
+            if (ModelState.IsValid)
             {
-                pagoVM.ListaRentas = _context.Renta
-                    .Include(r => r.Cliente)
-                    .Include(r => r.Vehiculo)
-                    .Select(r => new SelectListItem
-                    {
-                        Text = $"{r.Cliente.Nombres} {r.Cliente.Apellidos} — {r.Vehiculo.Marca} {r.Vehiculo.Modelo}",
-                        Value = r.Id.ToString(),
-                        Selected = r.Id == pagoVM.Pago.RentaId
-                    });
-                return View(pagoVM);
+                try
+                {
+                    _context.Update(vm.Pago);
+                    _context.SaveChanges();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!PagoExists(vm.Pago.Id))
+                        return NotFound();
+                    throw;
+                }
             }
 
-            _contenedor.Pago.Update(pagoVM.Pago);
-            _contenedor.Save();
-            return RedirectToAction(nameof(Index));
+            vm.ListaRentas = ObtenerListaDeRentas();
+            return View(vm);
         }
 
-        // DELETE: /Empleado/EmpleadoPagos/Delete/5
-        [HttpDelete]
+        private bool PagoExists(int id)
+        {
+            return _context.Pago.Any(e => e.Id == id);
+        }
+
+        private IEnumerable<SelectListItem> ObtenerListaDeRentas()
+        {
+            return _context.Renta
+                .Include(r => r.Cliente)
+                .Include(r => r.Vehiculo)
+                .Select(r => new SelectListItem
+                {
+                    Value = r.Id.ToString(),
+                    Text = $"{r.Cliente.Nombres} {r.Cliente.Apellidos} — " +
+                           $"{r.Vehiculo.Marca} {r.Vehiculo.Modelo} (Placa: {r.Vehiculo.Placa})"
+                })
+                .ToList();
+        }
+
+        // ----------  DELETE  ----------
+        [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var pago = _contenedor.Pago.Get(id);
+            var pago = _context.Pago.Find(id);
             if (pago == null)
-                return Json(new { success = false, message = "Pago no encontrado." });
+                return Json(new { success = false, message = "Pago no encontrado" });
 
-            _contenedor.Pago.Remove(pago);
-            _contenedor.Save();
-            return Json(new { success = true, message = "Pago eliminado." });
+            _context.Pago.Remove(pago);
+            _context.SaveChanges();
+
+            return Json(new { success = true, message = "Pago eliminado correctamente" });
         }
 
-        // GET: /Empleado/EmpleadoPagos/Recibo/5
+        // ----------  RECIBO  ----------
         [HttpGet]
         public IActionResult Recibo(int id)
         {
             var pago = _context.Pago
                 .Include(p => p.Renta).ThenInclude(r => r.Cliente)
                 .Include(p => p.Renta).ThenInclude(r => r.Vehiculo)
+                .AsNoTracking()
                 .FirstOrDefault(p => p.Id == id);
-            if (pago == null) return NotFound();
-            return View(pago);
+
+            if (pago == null)
+                return NotFound();
+
+            // Usamos la vista de Admin para el recibo
+            return View("~/Areas/Admin/Views/Pagos/Recibo.cshtml", pago);
         }
     }
 }

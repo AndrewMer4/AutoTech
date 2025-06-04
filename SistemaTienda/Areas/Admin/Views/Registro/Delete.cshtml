@@ -1,0 +1,63 @@
+﻿@model SistemaTienda.Models.ViewModels.UserVM
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Confirmar Eliminación";
+}
+
+@section Styles {
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
+    <style>
+        .page-header {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.5rem;
+            letter-spacing: 1px;
+            color: #343a40;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .card-custom {
+            background-color: #fff;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .confirm-text {
+            font-size: 1.1rem;
+            color: #495057;
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .btn-action {
+            border-radius: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+        }
+    </style>
+}
+
+<div class="d-flex vh-100 align-items-center justify-content-center">
+    <div class="card-custom">
+        <h1 class="page-header">Confirmar Eliminación</h1>
+        <p class="confirm-text">
+            ¿Seguro que deseas eliminar al usuario
+            <strong>@Model.Nombre @Model.Apellido</strong>?
+        </p>
+
+        <form asp-action="DeleteConfirmed" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div class="d-flex justify-content-center gap-3">
+                <button type="submit" class="btn btn-danger btn-action">
+                    <i class="far fa-trash-alt me-1"></i> Sí, eliminar
+                </button>
+                <a asp-action="Index" class="btn btn-secondary btn-action">
+                    <i class="fas fa-arrow-left me-1"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
